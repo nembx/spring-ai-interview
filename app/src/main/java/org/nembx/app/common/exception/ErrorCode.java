@@ -21,7 +21,11 @@ public enum ErrorCode {
     USER_NOT_PERMISSION("用户无权限", 10005),
     USER_NOT_EXIST("用户不存在", 10006),
     USER_NOT_ACTIVE("用户未激活", 10007),
-    USER_NOT_LOGOUT("用户未登出", 10008);
+    USER_NOT_LOGOUT("用户未登出", 10008),
+    DELETE_FAIL("删除失败", 10009),
+    UPLOAD_FAIL("上传失败", 10010),
+    DOWNLOAD_FAIL("下载失败", 10011);
+
 
 
     private final String message;
