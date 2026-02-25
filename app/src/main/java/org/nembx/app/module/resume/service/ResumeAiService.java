@@ -84,7 +84,7 @@ public class ResumeAiService {
             ResumeAnalysis resumeAnalysis = convertToEntity(resumeId, result);
             resumeAnalysisRepository.save(resumeAnalysis);
             log.info("保存简历分析结果到数据库");
-            // TODO:记得补充其他参数
+
             log.info("AI响应解析成功: {}", result);
             return result;
         } catch (Exception e) {
