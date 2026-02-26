@@ -16,7 +16,7 @@ import java.security.NoSuchAlgorithmException;
 @Slf4j
 public class FileHashUtils {
     private static final String HASH_ALGORITHM = "SHA-256";
-    private static final int BUFFER_SIZE = 8192;
+    private static final Integer BUFFER_SIZE = 8192;
 
     public static String calculateHash(MultipartFile file){
         try {
