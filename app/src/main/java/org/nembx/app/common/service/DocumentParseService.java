@@ -1,6 +1,7 @@
-package org.nembx.app.module.resume.service;
+package org.nembx.app.common.service;
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.extractor.EmbeddedDocumentExtractor;
@@ -22,9 +23,12 @@ import java.io.InputStream;
 /**
  * @author Lian
  */
+
 @Service
 @Slf4j
-public class ResumeParseService {
+@RequiredArgsConstructor
+public class DocumentParseService {
+    // 最大文本长度限制
     private static final int MAX_TEXT_LENGTH = 5 * 1024 * 1024;
 
     public String parseContent(MultipartFile file) {
@@ -37,6 +41,7 @@ public class ResumeParseService {
             return "";
         }
 
+        // 创建解析器
         try (InputStream inputStream = file.getInputStream()) {
             String content = parseContent(inputStream);
             log.info("文件解析成功，提取文本长度: {} 字符", content.length());
