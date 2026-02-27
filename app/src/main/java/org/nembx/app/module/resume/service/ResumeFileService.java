@@ -3,22 +3,9 @@ package org.nembx.app.module.resume.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.nembx.app.common.config.RustFsProperties;
-import org.nembx.app.common.exception.BusinessException;
+import org.nembx.app.common.service.RustFsService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
-import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.UUID;
-
-import static org.nembx.app.common.exception.ErrorCode.*;
 
 /**
  * @author Lian
@@ -29,108 +16,17 @@ import static org.nembx.app.common.exception.ErrorCode.*;
 @RequiredArgsConstructor
 public class ResumeFileService {
 
-    private final S3Client s3Client;
-
-    private final RustFsProperties rustFsProperties;
+    private final RustFsService rustFsService;
 
     public String uploadResume(MultipartFile file){
-        return uploadFile(file, "resume");
+        return rustFsService.uploadFile(file, "resume");
     }
 
     public void deleteResume(String fileKey){
-        deleteFile(fileKey);
+        rustFsService.deleteFile(fileKey);
     }
 
-    public boolean fileExists(String fileKey) {
-        try {
-            HeadObjectRequest headRequest = HeadObjectRequest.builder()
-                    .bucket(rustFsProperties.getBucket())
-                    .key(fileKey)
-                    .build();
-            s3Client.headObject(headRequest);
-            return true;
-        } catch (NoSuchKeyException e) {
-            return false;
-        } catch (S3Exception e) {
-            log.warn("检查文件存在性失败: {} - {}", fileKey, e.getMessage());
-            return false;
-        }
-    }
-
-    private String uploadFile(MultipartFile file, String filePrefix){
-        String originalFilename = file.getOriginalFilename();
-        String uuid = UUID.randomUUID().toString();
-        String key = filePrefix + "/" + uuid + "/" + originalFilename;
-        try (InputStream inputStream = file.getInputStream()) {
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(rustFsProperties.getBucket())
-                    .key(key)
-                    .contentType(file.getContentType())
-                    .contentLength(file.getSize())
-                    .build();
-            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, file.getSize()));
-            log.info("上传文件成功, 文件名为：{}", originalFilename);
-            return key;
-        } catch (IOException e) {
-            log.error("文件读取失败, 原因是: {}", e.getMessage());
-            throw new RuntimeException(e);
-        }catch (S3Exception e){
-            log.error("上传文件失败, 原因为: {}", e.getMessage());
-            throw new BusinessException(UPLOAD_FAIL, "上传失败");
-        }
-    }
-
-    private void deleteFile(String key){
-        if (key == null){
-            log.debug("删除文件失败, 文件键为空");
-            return;
-        }
-        if (!fileExists(key)){
-            log.warn("删除文件失败, 文件不存在");
-            return;
-        }
-        try {
-            s3Client.deleteObject(builder -> builder.bucket(rustFsProperties.getBucket()).key(key));
-            log.info("删除文件成功, 文件名为：{}", key);
-        } catch (S3Exception e) {
-            log.error("删除文件失败, 原因为: {}", e.getMessage());
-            throw new BusinessException(DELETE_FAIL, "删除失败");
-        }
-    }
-
-    public InputStream downloadFileStream(String key) {
-        if (key == null || !fileExists(key)) {
-            throw new BusinessException(NOT_FOUND, "文件不存在");
-        }
-        try {
-            // getObject 返回的是一个流，不会一次性加载到内存
-            return s3Client.getObject(builder ->
-                    builder.bucket(rustFsProperties.getBucket()).key(key));
-        } catch (S3Exception e) {
-            log.error("获取文件流失败: {}", e.getMessage());
-            throw new BusinessException(DOWNLOAD_FAIL, "文件提取失败");
-        }
-    }
-
-    public void ensureBucketExists() {
-        try {
-            s3Client.listObjects(builder -> builder.bucket(rustFsProperties.getBucket()));
-            log.info("存储桶已存在: {}", rustFsProperties.getBucket());
-        } catch (S3Exception e) {
-            if (e.statusCode() == 404) {
-                log.info("创建存储桶: {}", rustFsProperties.getBucket());
-                s3Client.createBucket(builder -> builder.bucket(rustFsProperties.getBucket()));
-            } else {
-                log.error("创建存储桶失败: {}", e.getMessage());
-            }
-        }
-    }
-
-    public String getFileUrl(String key) {
-        if (key == null || !fileExists(key)) {
-            throw new BusinessException(NOT_FOUND, "文件不存在");
-        }
-        return s3Client.utilities().getUrl(builder ->
-                builder.bucket(rustFsProperties.getBucket()).key(key)).toString();
+    public String getResumeUrl(String fileKey){
+        return rustFsService.getFileUrl(fileKey);
     }
 }
