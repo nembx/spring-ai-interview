@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: app
+  # PostgreSQL数据库配置
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:ai_interview}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:root}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update #首次启动用 create，表创建成功后，改回 update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  ai:
+    openai:
+      base-url: https://dashscope.aliyuncs.com/compatible-mode
+      api-key: "sk-5eb10e4a7b374ba4aed11798639da058"
+      chat:
+        options:
+          model: ${AI_MODEL:qwen3.5-plus}
+          temperature: 0.7
+      # Embedding模型配置
+      embedding:
+        options:
+          model: qwen3-vl-embedding
+    # 禁用自动重试机制，让异常立即返回
+    retry:
+      max-attempts: 1  # 不重试，失败立即返回
+      on-client-errors: false
+    # PostgreSQL Vector Store配置
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        dimensions: 1024  # 实际生成的向量维度
+        initialize-schema: false # 开发环境设置为 true，方便快速启动。生产环境设置为 false，手动管理数据库 schema，避免意外变更。
+        remove-existing-vector-store-table: false  # 保留现有表和数据
+  threads:
+    virtual:
+      enabled: true
+app:
+  storage:
+    endpoint: ${APP_STORAGE_ENDPOINT:http://localhost:9000}
+    access-key: ${APP_STORAGE_ACCESS_KEY:7cQX9f5ty1ZwsSIpNmCl}
+    secret-key: ${APP_STORAGE_SECRET_KEY:Lzt263565}
+    bucket: ${APP_STORAGE_BUCKET:ai-interview}
+    region: ${APP_STORAGE_REGION:us-east-1}
+server:
+  port: 8080
