@@ -1,9 +1,8 @@
-package org.nembx.app.module.resume.enity;
+package org.nembx.app.module.knowledge.enity;
 
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.experimental.Accessors;
 import org.nembx.app.common.status.TaskStatus;
 
 import java.time.LocalDateTime;
@@ -11,11 +10,11 @@ import java.time.LocalDateTime;
 /**
  * @author Lian
  */
-@Table(name = "resume")
-@Data
+
 @Entity
-@Accessors(chain = true)
-public class Resume {
+@Table(name = "knowledge")
+@Data
+public class Knowledge {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,20 +23,22 @@ public class Resume {
 
     private String fileName;
 
+    private String category;
+
+    private String originalFileName;
+
     private Long fileSize;
 
-    private String contentType;
+    private String fileType;
 
     private String storageKey;
 
     private String storageUrl;
 
-    private String content;
-
     private LocalDateTime uploadTime;
 
     @Enumerated(EnumType.STRING)
-    private TaskStatus status = TaskStatus.PENDING;
+    private TaskStatus taskStatus = TaskStatus.PENDING;
 
     private Boolean isDeleted = false;
 

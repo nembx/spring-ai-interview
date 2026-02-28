@@ -13,6 +13,7 @@ public enum ErrorCode {
     UNAUTHORIZED("未授权", 401),
     FORBIDDEN("禁止访问", 403),
     NOT_FOUND("资源不存在", 404),
+    PARAM_ERROR("参数错误", 422),
     INTERNAL_ERROR("服务器内部错误", 500),
     USER_NOT_FOUND("用户不存在", 10001),
     USER_EXIST("用户已存在", 10002),

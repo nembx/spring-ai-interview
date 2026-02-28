@@ -48,11 +48,10 @@ public class ResumeAnalysis {
     @Column(nullable = false)
     private LocalDateTime analyzedAt;
 
-    private Boolean isDeleted;
+    private Boolean isDeleted = false;
 
     @PrePersist
     protected void onCreate() {
-        analyzedAt = LocalDateTime.now();
-        isDeleted = false;
+        this.analyzedAt = LocalDateTime.now();
     }
 }
