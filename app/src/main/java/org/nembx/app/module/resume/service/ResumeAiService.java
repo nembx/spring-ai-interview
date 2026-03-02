@@ -4,6 +4,7 @@ package org.nembx.app.module.resume.service;
 import lombok.extern.slf4j.Slf4j;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.exception.ErrorCode;
+import org.nembx.app.common.status.TaskStatus;
 import org.nembx.app.module.resume.enity.ResumeAnalysis;
 import org.nembx.app.module.resume.enity.record.ResumeAnalysisResponse;
 import org.nembx.app.module.resume.enity.record.ResumeAnalysisResponse.Suggestion;
@@ -36,6 +37,8 @@ public class ResumeAiService {
 
     private final PromptTemplate userPromptTemplate;
 
+    private final ResumeManageService resumeManageService;
+
     private final ResumeAnalysisRepository resumeAnalysisRepository;
 
     private final BeanOutputConverter<ResumeAnalysisResponseDTO> outputConverter;
@@ -45,7 +48,8 @@ public class ResumeAiService {
             ChatClient.Builder chatClientBuilder,
             @Value("classpath:prompt/resume_system_prompt.st") Resource systemPromptResource,
             @Value("classpath:prompt/resume_user_prompt.st") Resource userPromptResource,
-            ResumeAnalysisRepository resumeAnalysisRepository) throws IOException {
+            ResumeAnalysisRepository resumeAnalysisRepository,
+            ResumeManageService resumeManageService) throws IOException {
         log.info("初始化AI服务");
         this.systemPromptTemplate = new PromptTemplate(
                 systemPromptResource.getContentAsString(StandardCharsets.UTF_8)
@@ -56,10 +60,12 @@ public class ResumeAiService {
         this.chatClient = chatClientBuilder.build();
         this.outputConverter = new BeanOutputConverter<>(ResumeAnalysisResponseDTO.class);
         this.resumeAnalysisRepository = resumeAnalysisRepository;
+        this.resumeManageService = resumeManageService;
     }
 
     public ResumeAnalysisResponse analyzeResume(Long resumeId, String resumeText) {
         log.info("开始调用大模型分析简历, 简历ID: {}", resumeId);
+        resumeManageService.updateResume(resumeId, TaskStatus.PROCESSING);
         ResumeAnalysisResponseDTO dto;
         // 加载用户提示词并填充变量
         Map<String, Object> variables = new HashMap<>();
@@ -74,6 +80,7 @@ public class ResumeAiService {
                     .entity(outputConverter);
             if (dto == null){
                 log.error("AI 响应解析失败");
+                resumeManageService.updateResume(resumeId, TaskStatus.FAILED);
                 throw new BusinessException(ErrorCode.INTERNAL_ERROR, "AI 响应解析失败");
             }
             log.debug("AI响应解析成功: overallScore={}", dto.overallScore());
@@ -85,10 +92,12 @@ public class ResumeAiService {
             resumeAnalysisRepository.save(resumeAnalysis);
             log.info("保存简历分析结果到数据库");
 
+            resumeManageService.updateResume(resumeId, TaskStatus.COMPLETED);
             log.info("AI响应解析成功: {}", result);
             return result;
         } catch (Exception e) {
             log.error("调用 AI 接口分析简历失败, 简历ID: {}", resumeId, e);
+            resumeManageService.updateResume(resumeId, TaskStatus.FAILED);
             throw new BusinessException(ErrorCode.INTERNAL_ERROR, "AI 分析失败");
         }
     }

@@ -1,7 +1,6 @@
 package org.nembx.app.module.resume.service;
 
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.nembx.app.common.exception.BusinessException;
@@ -15,6 +14,7 @@ import org.nembx.app.module.resume.repository.ResumeAnalysisRepository;
 import org.nembx.app.module.resume.utils.FileHashUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.Optional;
 
@@ -37,7 +37,7 @@ public class ResumeUploadService {
 
     private final ApplicationEventPublisher eventPublisher;
 
-    @Transactional(rollbackOn = Exception.class)
+    @Transactional(rollbackFor = BusinessException.class)
     public void uploadAndAnalyze(MultipartFile file){
         String contentType = file.getContentType();
         Long size = file.getSize();
@@ -69,15 +69,9 @@ public class ResumeUploadService {
         log.info("简历上传成功, 文件名为: {}, 文件路径为: {}", originalFilename, fileUrl);
         // 保存简历
         Long resumeId = resumeManageService.saveResume(
-                new ResumeSaveDTO(
-                        fileKey,
-                        fileUrl,
-                        content,
+                new ResumeSaveDTO(fileKey, fileUrl, content,
                         FileHashUtils.calculateHash(file),
-                        originalFilename,
-                        size,
-                        contentType
-                )
+                        originalFilename, size, contentType)
         );
 
         eventPublisher.publishEvent(new ResumeDTO(resumeId, content));
