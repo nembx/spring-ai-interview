@@ -17,8 +17,7 @@ spring:
         format_sql: true
   ai:
     openai:
-      base-url: https://dashscope.aliyuncs.com/compatible-mode
-      api-key: "sk-5eb10e4a7b374ba4aed11798639da058"
+
       chat:
         options:
           model: ${AI_MODEL:qwen3.5-plus}
