@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/knowledge")
-public class KnowLedgeController {
+public class KnowledgeController {
 
     private final KnowledgeManageService knowledgeManageService;
 

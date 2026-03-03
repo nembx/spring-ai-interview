@@ -1,11 +1,13 @@
 package org.nembx.app.module.knowledge.service;
 
 
+import cn.hutool.core.bean.BeanUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.exception.ErrorCode;
 import org.nembx.app.module.knowledge.enity.Knowledge;
+import org.nembx.app.module.knowledge.enity.dto.KnowledgeSaveDTO;
 import org.nembx.app.module.knowledge.repository.KnowledgeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,11 +30,13 @@ public class KnowledgeManageService {
     }
 
     @Transactional(rollbackFor = BusinessException.class)
-    public void saveKnowledge(Knowledge knowledge) {
-        if (knowledge == null){
+    public void saveKnowledge(KnowledgeSaveDTO knowledgeSaveDTO) {
+        if (knowledgeSaveDTO == null){
             log.warn("保存知识失败, 知识为空");
             throw new BusinessException(ErrorCode.PARAM_ERROR, "保存知识失败");
         }
+        Knowledge knowledge = new Knowledge();
+        BeanUtil.copyProperties(knowledgeSaveDTO, knowledge);
         knowledgeRepository.save(knowledge);
         log.info("保存知识成功, 知识ID: {}", knowledge.getId());
     }
@@ -45,5 +49,13 @@ public class KnowledgeManageService {
         }
         knowledgeRepository.deleteById(knowledgeId);
         log.info("删除知识成功, 知识ID: {}", knowledgeId);
+    }
+
+    public Knowledge findKnowledgeByFileHash(String fileHash) {
+        if (fileHash == null || fileHash.isEmpty()){
+            log.warn("获取知识失败, 文件Hash为空");
+            throw new BusinessException(ErrorCode.PARAM_ERROR, "获取知识失败");
+        }
+        return knowledgeRepository.findKnowledgeByFileHash(fileHash).orElse(null);
     }
 }
