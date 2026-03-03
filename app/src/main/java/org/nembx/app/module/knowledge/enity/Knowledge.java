@@ -25,8 +25,6 @@ public class Knowledge {
 
     private String category;
 
-    private String originalFileName;
-
     private Long fileSize;
 
     private String fileType;
