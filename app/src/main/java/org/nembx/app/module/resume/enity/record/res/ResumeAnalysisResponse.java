@@ -1,4 +1,4 @@
-package org.nembx.app.module.resume.enity.record;
+package org.nembx.app.module.resume.enity.record.res;
 
 
 import java.util.List;
