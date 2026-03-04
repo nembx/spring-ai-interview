@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class ResumeController {
     private final ResumeUploadService resumeUploadService;
+
     @PostMapping("/upload")
     public Result<String> uploadResume(@RequestParam ("file") MultipartFile file) {
         resumeUploadService.uploadAndAnalyze(file);

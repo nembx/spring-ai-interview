@@ -51,8 +51,7 @@ public class RustFsService {
 
     public String uploadFile(MultipartFile file, String filePrefix){
         String originalFilename = file.getOriginalFilename();
-        String uuid = UUID.randomUUID().toString();
-        String key = filePrefix + "/" + uuid + "/" + originalFilename;
+        String key = filePrefix + "/" + originalFilename;
         // 创建存储桶
         ensureBucketExists();
         try (InputStream inputStream = file.getInputStream()) {
