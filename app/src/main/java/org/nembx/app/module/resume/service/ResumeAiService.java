@@ -4,7 +4,7 @@ package org.nembx.app.module.resume.service;
 import lombok.extern.slf4j.Slf4j;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.exception.ErrorCode;
-import org.nembx.app.common.status.TaskStatus;
+import org.nembx.app.common.enums.status.TaskStatus;
 import org.nembx.app.module.resume.enity.ResumeAnalysis;
 import org.nembx.app.module.resume.enity.record.res.ResumeAnalysisResponse;
 import org.nembx.app.module.resume.enity.record.res.ResumeAnalysisResponse.Suggestion;

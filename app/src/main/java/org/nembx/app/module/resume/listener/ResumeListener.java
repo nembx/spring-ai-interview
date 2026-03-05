@@ -3,8 +3,8 @@ package org.nembx.app.module.resume.listener;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.nembx.app.module.resume.enity.record.ResumeAnalysisResponse;
-import org.nembx.app.module.resume.enity.record.ResumeDTO;
+import org.nembx.app.module.resume.enity.record.res.ResumeAnalysisResponse;
+import org.nembx.app.module.resume.enity.record.dto.ResumeDTO;
 import org.nembx.app.module.resume.service.ResumeAiService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;

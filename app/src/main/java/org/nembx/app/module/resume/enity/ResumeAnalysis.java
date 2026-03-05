@@ -52,6 +52,6 @@ public class ResumeAnalysis {
 
     @PrePersist
     protected void onCreate() {
-        this.analyzedAt = LocalDateTime.now();
+        analyzedAt = LocalDateTime.now();
     }
 }
