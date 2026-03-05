@@ -25,7 +25,8 @@ public enum ErrorCode {
     USER_NOT_LOGOUT("用户未登出", 10008),
     DELETE_FAIL("删除失败", 10009),
     UPLOAD_FAIL("上传失败", 10010),
-    DOWNLOAD_FAIL("下载失败", 10011);
+    DOWNLOAD_FAIL("下载失败", 10011),
+    KNOWLEDGE_QUERY_ERROR("知识库查询错误", 10012);
 
 
 

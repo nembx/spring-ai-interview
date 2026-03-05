@@ -6,10 +6,10 @@ import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.exception.ErrorCode;
 import org.nembx.app.common.status.TaskStatus;
 import org.nembx.app.module.resume.enity.ResumeAnalysis;
-import org.nembx.app.module.resume.enity.record.ResumeAnalysisResponse;
-import org.nembx.app.module.resume.enity.record.ResumeAnalysisResponse.Suggestion;
-import org.nembx.app.module.resume.enity.record.ResumeAnalysisResponse.ScoreDetail;
-import org.nembx.app.module.resume.enity.record.ResumeAnalysisResponseDTO;
+import org.nembx.app.module.resume.enity.record.res.ResumeAnalysisResponse;
+import org.nembx.app.module.resume.enity.record.res.ResumeAnalysisResponse.Suggestion;
+import org.nembx.app.module.resume.enity.record.res.ResumeAnalysisResponse.ScoreDetail;
+import org.nembx.app.module.resume.enity.record.dto.ResumeAnalysisResponseDTO;
 import org.nembx.app.module.resume.repository.ResumeAnalysisRepository;
 import org.nembx.app.module.resume.utils.JsonUtils;
 import org.springframework.ai.chat.client.ChatClient;
@@ -65,16 +65,20 @@ public class ResumeAiService {
 
     public ResumeAnalysisResponse analyzeResume(Long resumeId, String resumeText) {
         log.info("开始调用大模型分析简历, 简历ID: {}", resumeId);
+        if (resumeText == null){
+            log.error("简历文本为空");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "简历文本为空");
+        }
         resumeManageService.updateResume(resumeId, TaskStatus.PROCESSING);
         ResumeAnalysisResponseDTO dto;
-        // 加载用户提示词并填充变量
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("resumeText", resumeText);
-        String userPrompt = userPromptTemplate.render(variables);
+        // 构建用户提示
+        String userPrompt = buildUserPrompt(userPromptTemplate, resumeText);
+        String systemPrompt = buildSystemPrompt(systemPromptTemplate);
+
         try {
             // 使用流式或同步的方式调用 AI
             dto = this.chatClient.prompt()
-                    .system(this.systemPromptTemplate.render())
+                    .system(systemPrompt)
                     .user(userPrompt)
                     .call()
                     .entity(outputConverter);
@@ -102,6 +106,15 @@ public class ResumeAiService {
         }
     }
 
+    private String buildUserPrompt(PromptTemplate userPromptTemplate, String resumeText){
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("resumeText", resumeText);
+        return userPromptTemplate.render(variables);
+    }
+
+    private String buildSystemPrompt(PromptTemplate systemPromptTemplate){
+        return systemPromptTemplate.render();
+    }
 
     /**
      * 将AI响应转换为业务对象
