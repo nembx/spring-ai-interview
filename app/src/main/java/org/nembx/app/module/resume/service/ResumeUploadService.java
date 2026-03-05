@@ -8,8 +8,8 @@ import org.nembx.app.common.exception.ErrorCode;
 import org.nembx.app.common.service.DocumentParseService;
 import org.nembx.app.common.service.FileCheckService;
 import org.nembx.app.module.resume.enity.Resume;
-import org.nembx.app.module.resume.enity.record.ResumeDTO;
-import org.nembx.app.module.resume.enity.record.ResumeSaveDTO;
+import org.nembx.app.module.resume.enity.record.dto.ResumeDTO;
+import org.nembx.app.module.resume.enity.record.dto.ResumeSaveDTO;
 import org.nembx.app.module.resume.repository.ResumeAnalysisRepository;
 import org.nembx.app.module.resume.utils.FileHashUtils;
 import org.springframework.context.ApplicationEventPublisher;
@@ -54,7 +54,7 @@ public class ResumeUploadService {
         Optional<Resume> existingResume = resumeManageService.checkIfDuplicate(file);
         if (existingResume.isPresent()) {
             String aiRes = handleDuplicateResume(existingResume.get());
-            log.info("重复简历的分析结果为: {}", aiRes);
+            log.info("重复简历最近的分析结果为: {}", aiRes);
         }
 
         String content = documentParseService.parseContent(file);
@@ -80,8 +80,9 @@ public class ResumeUploadService {
 
 
     private String handleDuplicateResume(Resume resume){
-        log.info("检测到重复简历，返回历史分析结果: resumeId={}", resume.getId());
+        Long id = resume.getId();
+        log.info("检测到重复简历，返回最近历史分析结果: resumeId={}", id);
         // TODO: 获取历史分析结果
-        return resumeAnalysisRepository.findAnalysisByResumeId(resume.getId()).toString();
+        return resumeAnalysisRepository.findFirstByResumeIdOrderByAnalyzedAtDesc(id).toString();
     }
 }

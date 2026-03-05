@@ -4,7 +4,7 @@ package org.nembx.app.module.resume.enity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.nembx.app.common.status.TaskStatus;
+import org.nembx.app.common.enums.status.TaskStatus;
 
 import java.time.LocalDateTime;
 
@@ -43,6 +43,6 @@ public class Resume {
 
     @PrePersist
     protected void onCreate() {
-        this.uploadTime = LocalDateTime.now();
+        uploadTime = LocalDateTime.now();
     }
 }

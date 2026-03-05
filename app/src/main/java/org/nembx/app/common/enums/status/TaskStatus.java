@@ -1,4 +1,4 @@
-package org.nembx.app.common.status;
+package org.nembx.app.common.enums.status;
 
 
 /**
