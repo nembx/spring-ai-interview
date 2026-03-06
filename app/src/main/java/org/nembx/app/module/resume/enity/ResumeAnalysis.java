@@ -54,4 +54,9 @@ public class ResumeAnalysis {
     protected void onCreate() {
         analyzedAt = LocalDateTime.now();
     }
+
+    @PreUpdate
+    protected void onUpdate() {
+        analyzedAt = LocalDateTime.now();
+    }
 }
