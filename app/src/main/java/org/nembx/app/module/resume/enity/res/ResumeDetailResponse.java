@@ -1,4 +1,4 @@
-package org.nembx.app.module.resume.enity.record.res;
+package org.nembx.app.module.resume.enity.res;
 
 
 import org.nembx.app.module.resume.enity.ResumeAnalysis;

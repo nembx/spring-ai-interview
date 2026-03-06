@@ -1,4 +1,4 @@
-package org.nembx.app.module.resume.enity.record.dto;
+package org.nembx.app.module.resume.enity.dto;
 
 
 import java.util.List;
@@ -19,13 +19,15 @@ public record ResumeAnalysisResponseDTO(
             Integer skillMatchScore,
             Integer expressionScore,
             Integer projectScore
-    ) {}
+    ) {
+    }
 
     public record SuggestionDTO(
             String category,
             String priority,
             String issue,
             String recommendation
-    ) {}
+    ) {
+    }
 
 }
