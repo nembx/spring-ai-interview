@@ -1,4 +1,4 @@
-package org.nembx.app.module.resume.utils;
+package org.nembx.app.common.utils;
 
 
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public class FileHashUtils {
     private static final String HASH_ALGORITHM = "SHA-256";
     private static final Integer BUFFER_SIZE = 8192;
 
-    public static String calculateHash(MultipartFile file){
+    public static String calculateHash(MultipartFile file) {
         try {
             return calculateHash(file.getBytes());
         } catch (IOException e) {

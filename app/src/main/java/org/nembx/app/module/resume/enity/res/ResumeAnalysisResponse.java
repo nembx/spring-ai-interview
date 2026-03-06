@@ -1,4 +1,4 @@
-package org.nembx.app.module.resume.enity.record.res;
+package org.nembx.app.module.resume.enity.res;
 
 
 import java.util.List;
@@ -35,7 +35,8 @@ public record ResumeAnalysisResponse(
             Integer skillMatchScore,    // 技能匹配度 (0-25)
             Integer expressionScore,    // 表达专业性 (0-15)
             Integer projectScore        // 项目经验 (0-15)
-    ) {}
+    ) {
+    }
 
     /**
      * 改进建议
@@ -45,5 +46,6 @@ public record ResumeAnalysisResponse(
             String priority,        // 优先级：高、中、低
             String issue,           // 问题描述
             String recommendation   // 具体建议
-    ) {}
+    ) {
+    }
 }

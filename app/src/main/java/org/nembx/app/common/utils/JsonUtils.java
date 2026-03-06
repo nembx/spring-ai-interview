@@ -1,4 +1,4 @@
-package org.nembx.app.module.resume.utils;
+package org.nembx.app.common.utils;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,7 +30,7 @@ public class JsonUtils {
         }
     }
 
-    public static  <T> T fromJson(String json, Class<T> clazz) {
+    public static <T> T fromJson(String json, Class<T> clazz) {
         if (json == null || json.trim().isEmpty()) {
             return null;
         }
