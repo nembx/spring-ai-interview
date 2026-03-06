@@ -3,7 +3,8 @@ package org.nembx.app.module.knowledge.enity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.nembx.app.common.status.TaskStatus;
+import lombok.experimental.Accessors;
+import org.nembx.app.common.enums.TaskStatus;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "knowledge")
 @Data
+@Accessors(chain = true)
 public class Knowledge {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +44,11 @@ public class Knowledge {
 
     @PrePersist
     protected void onCreate() {
-        this.uploadTime = LocalDateTime.now();
+        uploadTime = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        uploadTime = LocalDateTime.now();
     }
 }
