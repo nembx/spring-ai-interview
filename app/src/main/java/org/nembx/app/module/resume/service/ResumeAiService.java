@@ -2,14 +2,14 @@ package org.nembx.app.module.resume.service;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.nembx.app.common.enums.TaskStatus;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.exception.ErrorCode;
-import org.nembx.app.common.enums.status.TaskStatus;
 import org.nembx.app.module.resume.enity.ResumeAnalysis;
-import org.nembx.app.module.resume.enity.record.res.ResumeAnalysisResponse;
-import org.nembx.app.module.resume.enity.record.res.ResumeAnalysisResponse.Suggestion;
-import org.nembx.app.module.resume.enity.record.res.ResumeAnalysisResponse.ScoreDetail;
-import org.nembx.app.module.resume.enity.record.dto.ResumeAnalysisResponseDTO;
+import org.nembx.app.module.resume.enity.dto.ResumeAnalysisResponseDTO;
+import org.nembx.app.module.resume.enity.res.ResumeAnalysisResponse;
+import org.nembx.app.module.resume.enity.res.ResumeAnalysisResponse.ScoreDetail;
+import org.nembx.app.module.resume.enity.res.ResumeAnalysisResponse.Suggestion;
 import org.nembx.app.module.resume.repository.ResumeAnalysisRepository;
 import org.nembx.app.module.resume.utils.JsonUtils;
 import org.springframework.ai.chat.client.ChatClient;
@@ -65,7 +65,7 @@ public class ResumeAiService {
 
     public ResumeAnalysisResponse analyzeResume(Long resumeId, String resumeText) {
         log.info("开始调用大模型分析简历, 简历ID: {}", resumeId);
-        if (resumeText == null){
+        if (resumeText == null) {
             log.error("简历文本为空");
             throw new BusinessException(ErrorCode.BAD_REQUEST, "简历文本为空");
         }
@@ -82,7 +82,7 @@ public class ResumeAiService {
                     .user(userPrompt)
                     .call()
                     .entity(outputConverter);
-            if (dto == null){
+            if (dto == null) {
                 log.error("AI 响应解析失败");
                 resumeManageService.updateResume(resumeId, TaskStatus.FAILED);
                 throw new BusinessException(ErrorCode.INTERNAL_ERROR, "AI 响应解析失败");
@@ -106,13 +106,13 @@ public class ResumeAiService {
         }
     }
 
-    private String buildUserPrompt(PromptTemplate userPromptTemplate, String resumeText){
+    private String buildUserPrompt(PromptTemplate userPromptTemplate, String resumeText) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("resumeText", resumeText);
         return userPromptTemplate.render(variables);
     }
 
-    private String buildSystemPrompt(PromptTemplate systemPromptTemplate){
+    private String buildSystemPrompt(PromptTemplate systemPromptTemplate) {
         return systemPromptTemplate.render();
     }
 
