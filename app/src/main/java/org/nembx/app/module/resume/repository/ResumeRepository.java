@@ -1,7 +1,7 @@
 package org.nembx.app.module.resume.repository;
 
 
-import org.nembx.app.common.enums.status.TaskStatus;
+import org.nembx.app.common.enums.TaskStatus;
 import org.nembx.app.module.resume.enity.Resume;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
