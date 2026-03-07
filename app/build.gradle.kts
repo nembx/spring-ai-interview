@@ -35,8 +35,8 @@ dependencies {
     // hutool
     implementation("cn.hutool:hutool-core:5.8.43")
     // apache tika
-    implementation ("org.apache.tika:tika-core:2.9.2")
-    implementation ("org.apache.tika:tika-parsers-standard-package:2.9.2")
+    implementation("org.apache.tika:tika-core:2.9.2")
+    implementation("org.apache.tika:tika-parsers-standard-package:2.9.2")
     // Lombok & 工具
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("org.postgresql:postgresql")
@@ -46,6 +46,9 @@ dependencies {
     // 测试模块
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    // Swagger
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1")
 
     // Spring AI 2.0 - OpenAI兼容模式
     implementation("org.springframework.ai:spring-ai-starter-model-openai:${springAiVersion}")
