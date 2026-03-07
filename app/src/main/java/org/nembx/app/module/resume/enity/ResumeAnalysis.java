@@ -1,6 +1,7 @@
 package org.nembx.app.module.resume.enity;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -14,40 +15,51 @@ import java.time.LocalDateTime;
 @Table(name = "resume_analysis")
 @Data
 @Accessors(chain = true)
+@Schema(description = "简历分析结果")
 public class ResumeAnalysis {
     @Id
+    @Schema(description = "分析ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 关联的简历ID
+    @Schema(description = "简历ID")
     private Long resumeId;
 
-    // 总分 (0-100)
+    @Schema(description = "总分")
     private Integer overallScore;
 
-    // 各维度评分
+    @Schema(description = "内容完整性")
     private Integer contentScore;      // 内容完整性 (0-25)
+
+    @Schema(description = "结构清晰度")
     private Integer structureScore;    // 结构清晰度 (0-20)
+
+    @Schema(description = "技能匹配度")
     private Integer skillMatchScore;   // 技能匹配度 (0-25)
+
+    @Schema(description = "表达专业性")
     private Integer expressionScore;   // 表达专业性 (0-15)
+
+    @Schema(description = "项目经验")
     private Integer projectScore;      // 项目经验 (0-15)
 
-    // 简历摘要
+    @Schema(description = "简历摘要")
     @Column(columnDefinition = "TEXT")
     private String summary;
 
-    // 优点列表 (JSON格式)
+    @Schema(description = "优点列表")
     @Column(columnDefinition = "TEXT")
     private String strengthsJson;
 
-    // 改进建议列表 (JSON格式)
+    @Schema(description = "改进建议列表")
     @Column(columnDefinition = "TEXT")
     private String suggestionsJson;
 
-    // 评测时间
+    @Schema(description = "分析时间")
     @Column(nullable = false)
     private LocalDateTime analyzedAt;
 
+    @Schema(description = "是否删除")
     private Boolean isDeleted = false;
 
     @PrePersist
