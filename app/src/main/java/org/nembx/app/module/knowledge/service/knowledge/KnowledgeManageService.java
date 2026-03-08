@@ -1,4 +1,4 @@
-package org.nembx.app.module.knowledge.service;
+package org.nembx.app.module.knowledge.service.knowledge;
 
 
 import cn.hutool.core.bean.BeanUtil;
@@ -14,7 +14,6 @@ import org.nembx.app.module.knowledge.repository.KnowledgeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -31,15 +30,8 @@ public class KnowledgeManageService {
             log.warn("获取知识失败, 知识ID非法");
             throw new BusinessException(ErrorCode.PARAM_ERROR, "获取知识失败");
         }
-        return knowledgeRepository.findById(knowledgeId).orElse(null);
-    }
-
-    public List<Knowledge> findAllKnowledge(String KnowledgeIds) {
-        List<Long> idList = Arrays.stream(KnowledgeIds.split(","))
-                .map(String::trim)     // 去掉可能存在的空格，例如 "1, 2"
-                .map(Long::valueOf)    // 转换为 Long 类型（如果你的 ID 是 String，去掉这行即可）
-                .toList();
-        return knowledgeRepository.findAllById(idList);
+        return knowledgeRepository.findById(knowledgeId).orElseThrow(
+                () -> new BusinessException(ErrorCode.NOT_FOUND, "获取知识失败"));
     }
 
     public List<KnowledgeListDTO> toListDTO(List<Knowledge> knowledgeList) {

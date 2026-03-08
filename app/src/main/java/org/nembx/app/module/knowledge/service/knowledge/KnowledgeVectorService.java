@@ -1,4 +1,4 @@
-package org.nembx.app.module.knowledge.service;
+package org.nembx.app.module.knowledge.service.knowledge;
 
 
 import cn.hutool.core.collection.CollectionUtil;
@@ -31,7 +31,7 @@ public class KnowledgeVectorService {
     private static final int MAX_BATCH_SIZE = 10;
 
     @Transactional(rollbackFor = Exception.class)
-    public void vectorizeKnowledge(Long knowledgeId, String content){
+    public void vectorizeKnowledge(Long knowledgeId, String content) {
         log.info("开始向量化知识, 知识ID: {}", knowledgeId);
         try {
             // 分块
@@ -40,7 +40,7 @@ public class KnowledgeVectorService {
 
             // 添加知识ID
             chunks.forEach(chunk ->
-                chunk.getMetadata().put("knowledgeId", knowledgeId.toString())
+                    chunk.getMetadata().put("knowledgeId", knowledgeId.toString())
             );
 
             int totalChunks = chunks.size();
@@ -62,14 +62,14 @@ public class KnowledgeVectorService {
         }
     }
 
-    public List<Document> similaritySearch(String query, List<Long> knowledgeIds, int topK, double minScore){
+    public List<Document> similaritySearch(String query, List<Long> knowledgeIds, int topK, double minScore) {
         log.info("开始相似度搜索, 查询: {}, 知识ID: {}, topK: {}, minScore: {}", query, knowledgeIds, topK, minScore);
         try {
             SearchRequest.Builder builder = SearchRequest
                     .builder()
                     .query(query)
                     .topK(Math.max(topK, 1));
-            if (minScore > 0){
+            if (minScore > 0) {
                 log.info("过滤相似度分数: {}", minScore);
                 builder.similarityThreshold(minScore);
             }
@@ -78,20 +78,26 @@ public class KnowledgeVectorService {
                 builder.filterExpression("knowledgeId IN [%s]".formatted(String.join(",", knowledgeIds.stream().map(Object::toString).toList())));
             }
             List<Document> resDocuments = vectorStore.similaritySearch(builder.build());
-            if (CollectionUtil.isEmpty(resDocuments)){
+            if (CollectionUtil.isEmpty(resDocuments)) {
                 log.warn("相似度搜索结果为空, 查询: {}, 知识ID: {}", query, knowledgeIds);
                 return List.of();
             }
             log.info("相似度搜索完成, 结果数量: {}, 知识ID: {}", resDocuments.size(), knowledgeIds);
             return resDocuments;
-        }catch (Exception e){
+        } catch (Exception e) {
             log.warn("相似度搜索失败, 错误信息: {}", e.getMessage());
             return List.of();
         }
     }
 
-    public void deleteKnowledge(Long knowledgeId){
-        vectorRepository.deleteByKnowledgeId(knowledgeId);
-        log.info("删除向量成功, 知识ID: {}", knowledgeId);
+    // 删除指定数据库所有的向量
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteKnowledge(Long knowledgeId) {
+        try {
+            vectorRepository.deleteByKnowledgeId(knowledgeId);
+            log.info("删除向量成功, 知识ID: {}", knowledgeId);
+        } catch (Exception e) {
+            throw new RuntimeException("删除向量数据失败: " + e.getMessage(), e);
+        }
     }
 }
