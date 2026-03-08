@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: blogger-backend
+  profiles:
+    active: prod # dev, test, prod

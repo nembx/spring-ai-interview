@@ -2,14 +2,16 @@ package org.nembx.app.common.exception;
 
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author Lian
  */
 @Getter
+@RequiredArgsConstructor
 public enum ErrorCode {
-    SUCCESS("成功",200),
-    BAD_REQUEST("请求参数错误",400),
+    SUCCESS("成功", 200),
+    BAD_REQUEST("请求参数错误", 400),
     UNAUTHORIZED("未授权", 401),
     FORBIDDEN("禁止访问", 403),
     NOT_FOUND("资源不存在", 404),
@@ -28,13 +30,6 @@ public enum ErrorCode {
     DOWNLOAD_FAIL("下载失败", 10011),
     KNOWLEDGE_QUERY_ERROR("知识库查询错误", 10012);
 
-
-
     private final String message;
     private final Integer code;
-
-    ErrorCode(String message, Integer code) {
-        this.message = message;
-        this.code = code;
-    }
 }
