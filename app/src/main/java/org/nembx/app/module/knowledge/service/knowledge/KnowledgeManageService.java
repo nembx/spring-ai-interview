@@ -10,6 +10,7 @@ import org.nembx.app.common.exception.ErrorCode;
 import org.nembx.app.module.knowledge.enity.Knowledge;
 import org.nembx.app.module.knowledge.enity.dto.KnowledgeListDTO;
 import org.nembx.app.module.knowledge.enity.dto.KnowledgeSaveDTO;
+import org.nembx.app.module.knowledge.enity.res.KnowledgeResponse;
 import org.nembx.app.module.knowledge.repository.KnowledgeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +26,19 @@ import java.util.List;
 public class KnowledgeManageService {
     private final KnowledgeRepository knowledgeRepository;
 
-    public Knowledge getKnowledgeById(Long knowledgeId) {
+    public KnowledgeResponse getKnowledgeById(Long knowledgeId) {
+        Knowledge knowledge = getOneById(knowledgeId);
+        return new KnowledgeResponse(
+                knowledge.getId(),
+                knowledge.getFileName(),
+                knowledge.getCategory(),
+                knowledge.getFileSize(),
+                knowledge.getFileType(),
+                knowledge.getUploadTime()
+        );
+    }
+
+    public Knowledge getOneById(Long knowledgeId) {
         if (knowledgeId == null || knowledgeId <= 0) {
             log.warn("获取知识失败, 知识ID非法");
             throw new BusinessException(ErrorCode.PARAM_ERROR, "获取知识失败");
@@ -75,5 +88,23 @@ public class KnowledgeManageService {
             throw new BusinessException(ErrorCode.PARAM_ERROR, "获取知识失败");
         }
         return knowledgeRepository.findKnowledgeByFileHash(fileHash).orElse(null);
+    }
+
+    public List<KnowledgeListDTO> findAllByOrderByUploadTimeDesc() {
+        List<Knowledge> knowledgeList = knowledgeRepository.findAllByOrderByUploadTimeDesc();
+        return knowledgeList.stream().map(knowledge -> new KnowledgeListDTO(
+                knowledge.getId(), knowledge.getFileName(),
+                knowledge.getCategory(), knowledge.getFileSize(),
+                knowledge.getFileType(), knowledge.getUploadTime()
+        )).toList();
+    }
+
+    public List<KnowledgeListDTO> findAllByCategory(String category) {
+        List<Knowledge> knowledgeList = knowledgeRepository.findAllByCategory(category);
+        return knowledgeList.stream().map(knowledge -> new KnowledgeListDTO(
+                knowledge.getId(), knowledge.getFileName(),
+                knowledge.getCategory(), knowledge.getFileSize(),
+                knowledge.getFileType(), knowledge.getUploadTime()
+        )).toList();
     }
 }

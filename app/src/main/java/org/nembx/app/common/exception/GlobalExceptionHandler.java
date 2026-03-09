@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.stream.Collectors;
 
@@ -42,5 +43,13 @@ public class GlobalExceptionHandler {
     public Result<Void> handleException(Exception e) {
         log.error("系统异常：{}", e.getMessage());
         return Result.error(ErrorCode.INTERNAL_ERROR.getCode(), ErrorCode.INTERNAL_ERROR.getMessage());
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public Result<String> handleNoResourceFoundException(NoResourceFoundException e) {
+        // 降级为 WARN 级别，或者干脆不打印堆栈，只记录一行日志
+        log.warn("静态资源不存在: {}", e.getMessage());
+        // 返回给前端一个友好的 404 提示，而不是报系统内部错误
+        return Result.error(404, "您访问的资源或接口不存在");
     }
 }

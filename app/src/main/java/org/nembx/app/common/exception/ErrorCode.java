@@ -28,7 +28,8 @@ public enum ErrorCode {
     DELETE_FAIL("删除失败", 10009),
     UPLOAD_FAIL("上传失败", 10010),
     DOWNLOAD_FAIL("下载失败", 10011),
-    KNOWLEDGE_QUERY_ERROR("知识库查询错误", 10012);
+    KNOWLEDGE_QUERY_ERROR("知识库查询错误", 10012),
+    EXPORT_PDF_FAILED("导出PDF失败", 10013);
 
     private final String message;
     private final Integer code;

@@ -17,4 +17,6 @@ public interface KnowledgeRepository extends JpaRepository<Knowledge, Long> {
     Optional<Knowledge> findKnowledgeByFileHash(String fileHash);
 
     List<Knowledge> findAllByOrderByUploadTimeDesc();
+
+    List<Knowledge> findAllByCategory(String category);
 }

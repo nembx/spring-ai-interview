@@ -4,7 +4,7 @@ package org.nembx.app.module.knowledge.enity.dto;
 /**
  * @author Lian
  */
-public record KnowledgeDTO(
+public record KnowledgeListenerDTO(
         Long id,
         String content
 ) {

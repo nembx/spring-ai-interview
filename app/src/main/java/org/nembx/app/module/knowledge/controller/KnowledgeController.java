@@ -6,12 +6,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.nembx.app.common.exception.ErrorCode;
 import org.nembx.app.common.result.Result;
-import org.nembx.app.module.knowledge.enity.Knowledge;
+import org.nembx.app.module.knowledge.enity.dto.KnowledgeListDTO;
+import org.nembx.app.module.knowledge.enity.res.KnowledgeResponse;
 import org.nembx.app.module.knowledge.service.knowledge.KnowledgeDeleteService;
 import org.nembx.app.module.knowledge.service.knowledge.KnowledgeManageService;
 import org.nembx.app.module.knowledge.service.knowledge.KnowledgeUploadService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * @author Lian
@@ -39,12 +42,12 @@ public class KnowledgeController {
 
     @Operation(summary = "根据Id获取知识库")
     @GetMapping("/get/{knowledgeId}")
-    public Result<Knowledge> getKnowledgeById(@PathVariable Long knowledgeId) {
-        Knowledge knowledge = knowledgeManageService.getKnowledgeById(knowledgeId);
+    public Result<KnowledgeResponse> getKnowledgeById(@PathVariable Long knowledgeId) {
+        KnowledgeResponse knowledge = knowledgeManageService.getKnowledgeById(knowledgeId);
         if (knowledge == null) {
             return Result.error(ErrorCode.INTERNAL_ERROR.getCode(), "知识库为空");
         }
-        return Result.success(ErrorCode.SUCCESS.getMessage(), knowledge);
+        return Result.success(knowledge);
     }
 
     @Operation(summary = "根据Id删除知识库")
@@ -53,4 +56,17 @@ public class KnowledgeController {
         knowledgeDeleteService.deleteKnowledge(knowledgeId);
         return Result.success();
     }
+
+    @Operation(summary = "按照上传时间倒序查询所有知识库")
+    @GetMapping("/list")
+    public Result<List<KnowledgeListDTO>> getAllKnowledgeByOrderByUploadTimeDesc() {
+        return Result.success(knowledgeManageService.findAllByOrderByUploadTimeDesc());
+    }
+
+    @Operation(summary = "根据分类查询知识库")
+    @GetMapping("/list/{category}")
+    public Result<List<KnowledgeListDTO>> getKnowledgeByCategory(@PathVariable String category) {
+        return Result.success(knowledgeManageService.findAllByCategory(category));
+    }
+
 }
