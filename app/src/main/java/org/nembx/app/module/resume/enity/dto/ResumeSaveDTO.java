@@ -1,4 +1,4 @@
-package org.nembx.app.module.resume.enity.record.dto;
+package org.nembx.app.module.resume.enity.dto;
 
 
 /**

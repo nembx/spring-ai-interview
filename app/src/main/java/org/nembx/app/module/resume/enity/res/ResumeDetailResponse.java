@@ -13,7 +13,6 @@ public record ResumeDetailResponse(
         String fileName,
         Long fileSize,
         String contentType,
-        String fileUrl,
         String resumeText,
         LocalDateTime uploadTime,
         ResumeAnalysis analysis
