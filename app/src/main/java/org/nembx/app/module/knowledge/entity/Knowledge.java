@@ -1,10 +1,11 @@
-package org.nembx.app.module.knowledge.enity;
+package org.nembx.app.module.knowledge.entity;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.SoftDelete;
 import org.nembx.app.common.enums.TaskStatus;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 @Table(name = "knowledge")
 @Data
 @Accessors(chain = true)
+@SoftDelete(columnName = "is_deleted")
 @Schema(description = "知识库")
 public class Knowledge {
     @Id
@@ -32,6 +34,10 @@ public class Knowledge {
 
     @Schema(description = "文件分类")
     private String category;
+
+    @Schema(description = "文件内容")
+    @Column(columnDefinition = "TEXT")
+    private String content;
 
     @Schema(description = "文件大小")
     private Long fileSize;
@@ -52,16 +58,8 @@ public class Knowledge {
     @Enumerated(EnumType.STRING)
     private TaskStatus taskStatus = TaskStatus.PENDING;
 
-    @Schema(description = "是否删除")
-    private Boolean isDeleted = false;
-
     @PrePersist
     protected void onCreate() {
-        uploadTime = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
         uploadTime = LocalDateTime.now();
     }
 }

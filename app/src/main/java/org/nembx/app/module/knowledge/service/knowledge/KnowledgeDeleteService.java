@@ -3,7 +3,7 @@ package org.nembx.app.module.knowledge.service.knowledge;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.nembx.app.module.knowledge.enity.Knowledge;
+import org.nembx.app.module.knowledge.entity.Knowledge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,10 +24,6 @@ public class KnowledgeDeleteService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteKnowledge(Long knowledgeId) {
         Knowledge knowledge = knowledgeManageService.getOneById(knowledgeId);
-        if (knowledge == null) {
-            log.warn("删除知识失败, 知识不存在");
-            return;
-        }
         knowledgeManageService.deleteKnowledge(knowledgeId);
         log.info("数据库删除知识库成功, knowledgeId: {}", knowledgeId);
 
