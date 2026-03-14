@@ -5,7 +5,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.exception.ErrorCode;
-import org.nembx.app.module.knowledge.enity.dto.RetrievalContext;
+import org.nembx.app.module.knowledge.entity.dto.RetrievalContext;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;

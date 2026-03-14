@@ -1,4 +1,4 @@
-package org.nembx.app.module.knowledge.enity.dto;
+package org.nembx.app.module.knowledge.entity.dto;
 
 
 /**
