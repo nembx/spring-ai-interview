@@ -1,10 +1,11 @@
-package org.nembx.app.module.resume.enity;
+package org.nembx.app.module.resume.entity;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.SoftDelete;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Table(name = "resume_analysis")
 @Data
 @Accessors(chain = true)
+@SoftDelete(columnName = "is_deleted")
 @Schema(description = "简历分析结果")
 public class ResumeAnalysis {
     @Id
@@ -59,16 +61,8 @@ public class ResumeAnalysis {
     @Column(nullable = false)
     private LocalDateTime analyzedAt;
 
-    @Schema(description = "是否删除")
-    private Boolean isDeleted = false;
-
     @PrePersist
     protected void onCreate() {
-        analyzedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
         analyzedAt = LocalDateTime.now();
     }
 }

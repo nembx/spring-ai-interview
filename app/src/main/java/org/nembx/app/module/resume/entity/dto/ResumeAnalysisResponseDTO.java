@@ -1,4 +1,4 @@
-package org.nembx.app.module.resume.enity.dto;
+package org.nembx.app.module.resume.entity.dto;
 
 
 import java.util.List;

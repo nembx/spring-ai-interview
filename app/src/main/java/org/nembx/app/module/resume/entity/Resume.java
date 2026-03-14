@@ -1,10 +1,11 @@
-package org.nembx.app.module.resume.enity;
+package org.nembx.app.module.resume.entity;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.SoftDelete;
 import org.nembx.app.common.enums.TaskStatus;
 
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Accessors(chain = true)
+@SoftDelete(columnName = "is_deleted")
 @Schema(description = "简历")
 public class Resume {
     @Id
@@ -42,6 +44,7 @@ public class Resume {
     private String storageUrl;
 
     @Schema(description = "文件内容")
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Schema(description = "上传时间")
@@ -51,16 +54,8 @@ public class Resume {
     @Enumerated(EnumType.STRING)
     private TaskStatus status = TaskStatus.PENDING;
 
-    @Schema(description = "是否删除")
-    private Boolean isDeleted = false;
-
     @PrePersist
     protected void onCreate() {
-        uploadTime = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
         uploadTime = LocalDateTime.now();
     }
 }

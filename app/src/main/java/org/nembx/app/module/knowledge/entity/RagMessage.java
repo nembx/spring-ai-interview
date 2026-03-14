@@ -1,10 +1,11 @@
-package org.nembx.app.module.knowledge.enity;
+package org.nembx.app.module.knowledge.entity;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.SoftDelete;
 import org.nembx.app.common.enums.MessageType;
 
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 @Entity
 @Data
 @Accessors(chain = true)
+@SoftDelete(columnName = "is_deleted")
 @Schema(description = "RAG会话消息")
 public class RagMessage {
     @Id
@@ -45,9 +47,6 @@ public class RagMessage {
 
     @Schema(description = "消息是否完成")
     private Boolean completed = false;
-
-    @Schema(description = "是否删除")
-    private Boolean isDeleted = false;
 
     @PrePersist
     protected void onCreate() {
