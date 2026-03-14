@@ -1,5 +1,8 @@
 spring:
   application:
-    name: blogger-backend
+    name: app
+  config:
+    import:
+      - optional:file:app/.env[.properties]
   profiles:
-    active: prod # dev, test, prod
+    active: dev # dev, test, prod

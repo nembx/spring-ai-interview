@@ -1,11 +1,9 @@
 spring:
-  application:
-    name: app
   # PostgreSQL数据库配置
   datasource:
-    url: "填自己的"
-    username: "填自己的"
-    password: "填自己的"
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -17,16 +15,16 @@ spring:
         format_sql: true
   ai:
     openai:
-      base-url: "填自己的"
-      api-key: "填自己的"
+      base-url: ${AI_URL}
+      api-key: ${AI_KEY}
       chat:
         options:
-          model: "填自己的"
+          model: ${AI_MODEL}
           temperature: 0.7
       # Embedding模型配置
       embedding:
         options:
-          model: "填自己的"
+          model: qwen3-vl-embedding
     # 禁用自动重试机制，让异常立即返回
     retry:
       max-attempts: 1  # 不重试，失败立即返回
@@ -44,11 +42,11 @@ spring:
       enabled: true
 app:
   storage:
-    endpoint: "填自己的"
-    access-key: "填自己的"
-    secret-key: "填自己的"
-    bucket: "填自己的"
-    region: ${APP_STORAGE_REGION:us-east-1}
+    endpoint: ${APP_STORAGE_ENDPOINT}
+    access-key: ${APP_STORAGE_ACCESS_KEY}
+    secret-key: ${APP_STORAGE_SECRET_KEY}
+    bucket: ${APP_STORAGE_BUCKET}
+    region: ${APP_STORAGE_REGION}
 springdoc:
   api-docs:
     path: /v3/api-docs        # OpenAPI JSON 数据接口的路径（默认值）
@@ -57,8 +55,5 @@ springdoc:
     operationsSorter: method  # UI 界面上接口按照 HTTP 方法排序
     tagsSorter: alpha         # 标签按照字母排序
   packages-to-scan: org.nembx.app.module
-agent:
-  skills:
-    dirs: classpath:/.claude/skills
 server:
   port: 8080

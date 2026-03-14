@@ -50,6 +50,7 @@ dependencies {
     // itext
     implementation("com.itextpdf:itext-core:8.0.5")
 
+
     // Swagger
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1")
 
