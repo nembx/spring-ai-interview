@@ -3,7 +3,7 @@ package org.nembx.app.module.resume.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.nembx.app.module.resume.enity.Resume;
+import org.nembx.app.module.resume.entity.Resume;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,10 +22,7 @@ public class ResumeDeleteService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteResume(Long resumeId) {
         Resume resume = resumeManageService.getOneById(resumeId);
-        if (resume == null) {
-            log.warn("删除简历失败, id为: {}", resumeId);
-            return;
-        }
+
         resumeManageService.deleteResume(resumeId);
         log.info("数据库删除简历成功, id为: {}", resumeId);
 

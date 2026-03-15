@@ -1,7 +1,7 @@
-package org.nembx.app.module.resume.enity.res;
+package org.nembx.app.module.resume.entity.res;
 
 
-import org.nembx.app.module.resume.enity.ResumeAnalysis;
+import org.nembx.app.module.resume.entity.ResumeAnalysis;
 
 import java.time.LocalDateTime;
 
