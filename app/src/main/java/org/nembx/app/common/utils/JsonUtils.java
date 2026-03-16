@@ -24,7 +24,7 @@ public class JsonUtils {
         try {
             return OBJECT_MAPPER.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
-            log.error("JSON 序列化失败, 对象: {}", obj, e);
+            log.error("JSON 序列化失败, 对象类型: {}", obj.getClass().getName(), e);
             // 抛出运行时异常，避免吃掉异常导致隐患
             throw new RuntimeException("JSON 序列化失败", e);
         }
@@ -37,7 +37,7 @@ public class JsonUtils {
         try {
             return OBJECT_MAPPER.readValue(json, clazz);
         } catch (JsonProcessingException e) {
-            log.error("JSON 反序列化失败, JSON字符串: {}, 目标类: {}", json, clazz.getName(), e);
+            log.error("JSON 反序列化失败, JSON长度: {}, 目标类: {}", json.length(), clazz.getName(), e);
             throw new RuntimeException("JSON 反序列化失败", e);
         }
     }
@@ -52,7 +52,7 @@ public class JsonUtils {
         try {
             return OBJECT_MAPPER.readValue(json, typeReference);
         } catch (JsonProcessingException e) {
-            log.error("JSON 复杂泛型反序列化失败, JSON字符串: {}", json, e);
+            log.error("JSON 复杂泛型反序列化失败, JSON长度: {}", json.length(), e);
             throw new RuntimeException("JSON 反序列化失败", e);
         }
     }
