@@ -38,7 +38,7 @@ public class DocumentParseService {
         // 处理空文件
         if (file.isEmpty() || file.getSize() == 0) {
             log.warn("文件为空: {}", fileName);
-            return "";
+            return null;
         }
 
         // 创建解析器

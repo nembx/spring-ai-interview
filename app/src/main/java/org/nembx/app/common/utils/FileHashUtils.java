@@ -7,6 +7,7 @@ import org.nembx.app.common.exception.ErrorCode;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -19,10 +20,19 @@ public class FileHashUtils {
     private static final Integer BUFFER_SIZE = 8192;
 
     public static String calculateHash(MultipartFile file) {
-        try {
-            return calculateHash(file.getBytes());
+        try (InputStream is = file.getInputStream()) {
+            MessageDigest digest = MessageDigest.getInstance(HASH_ALGORITHM);
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int bytesRead;
+            while ((bytesRead = is.read(buffer)) != -1) {
+                digest.update(buffer, 0, bytesRead);
+            }
+            return bytesToHex(digest.digest());
         } catch (IOException e) {
             log.error("读取文件内容失败: {}", e.getMessage());
+            throw new BusinessException(ErrorCode.INTERNAL_ERROR, "计算文件哈希失败");
+        } catch (NoSuchAlgorithmException e) {
+            log.error("哈希算法不支持: {}", HASH_ALGORITHM);
             throw new BusinessException(ErrorCode.INTERNAL_ERROR, "计算文件哈希失败");
         }
     }
