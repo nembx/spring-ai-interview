@@ -5,12 +5,13 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.nembx.app.common.enums.TaskStatus;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.exception.ErrorCode;
-import org.nembx.app.module.knowledge.enity.Knowledge;
-import org.nembx.app.module.knowledge.enity.dto.KnowledgeListDTO;
-import org.nembx.app.module.knowledge.enity.dto.KnowledgeSaveDTO;
-import org.nembx.app.module.knowledge.enity.res.KnowledgeResponse;
+import org.nembx.app.module.knowledge.entity.Knowledge;
+import org.nembx.app.module.knowledge.entity.dto.KnowledgeListDTO;
+import org.nembx.app.module.knowledge.entity.dto.KnowledgeSaveDTO;
+import org.nembx.app.module.knowledge.entity.res.KnowledgeResponse;
 import org.nembx.app.module.knowledge.repository.KnowledgeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +39,23 @@ public class KnowledgeManageService {
         );
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public void updateKnowledgeStatus(Long knowledgeId, TaskStatus status) {
+        Knowledge knowledge = knowledgeRepository.findById(knowledgeId).orElseThrow(
+                () -> new BusinessException(ErrorCode.NOT_FOUND, "知识库不存在"));
+        knowledge.setTaskStatus(status);
+        log.debug("更新知识状态成功, 知识ID: {}, 状态: {}", knowledgeId, status);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void updateKnowledgeStorge(Long knowledgeId, String key, String url) {
+        Knowledge knowledge = knowledgeRepository.findById(knowledgeId).orElseThrow(
+                () -> new BusinessException(ErrorCode.NOT_FOUND, "知识库不存在"));
+        knowledge.setStorageKey(key);
+        knowledge.setStorageUrl(url);
+        log.debug("更新知识存储成功, 知识ID: {}, 存储Key: {}, 存储URL: {}", knowledgeId, key, url);
+    }
+
     public Knowledge getOneById(Long knowledgeId) {
         if (knowledgeId == null || knowledgeId <= 0) {
             log.warn("获取知识失败, 知识ID非法");
@@ -50,7 +68,7 @@ public class KnowledgeManageService {
     public List<KnowledgeListDTO> toListDTO(List<Knowledge> knowledgeList) {
         if (CollectionUtil.isEmpty(knowledgeList)) {
             log.warn("获取知识列表失败, 知识列表为空");
-            return null;
+            return List.of();
         }
         return knowledgeList.stream().map(knowledge -> new KnowledgeListDTO(
                 knowledge.getId(), knowledge.getFileName(),
@@ -59,7 +77,7 @@ public class KnowledgeManageService {
         )).toList();
     }
 
-    @Transactional(rollbackFor = BusinessException.class)
+    @Transactional(rollbackFor = Exception.class)
     public Long saveKnowledge(KnowledgeSaveDTO knowledgeSaveDTO) {
         if (knowledgeSaveDTO == null) {
             log.warn("保存知识失败, 知识为空");
@@ -72,7 +90,7 @@ public class KnowledgeManageService {
         return knowledge.getId();
     }
 
-    @Transactional(rollbackFor = BusinessException.class)
+    @Transactional(rollbackFor = Exception.class)
     public void deleteKnowledge(Long knowledgeId) {
         if (knowledgeId == null || knowledgeId <= 0) {
             log.warn("删除知识失败, 知识ID非法");
