@@ -1,10 +1,11 @@
 package org.nembx.app.module.knowledge.repository;
 
 
-import org.nembx.app.module.knowledge.enity.RagMessage;
+import org.nembx.app.module.knowledge.entity.RagMessage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -14,4 +15,6 @@ import java.util.List;
 @Repository
 public interface RagMessageRepository extends JpaRepository<RagMessage, Long> {
     List<RagMessage> findAllBySessionIdOrderByCreatedAtAsc(Long sessionId);
+
+    List<RagMessage> findByCompletedFalseAndCreatedAtBefore(LocalDateTime threshold);
 }
