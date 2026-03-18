@@ -1,11 +1,8 @@
 package org.nembx.app.module.resume.repository;
 
 
-import org.nembx.app.common.enums.TaskStatus;
-import org.nembx.app.module.resume.enity.Resume;
+import org.nembx.app.module.resume.entity.Resume;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -17,7 +14,7 @@ import java.util.Optional;
 public interface ResumeRepository extends JpaRepository<Resume, Long> {
     Optional<Resume> findByFileHash(String fileHash);
 
-    @Modifying
-    @Query("update Resume set status = ?2 where id = ?1")
-    Integer updateResumeTaskStatus(Long resumeId, TaskStatus taskStatus);
+//    @Modifying
+//    @Query("update Resume r set r.status = :taskStatus where r.id = :resumeId")
+//    Integer updateResumeTaskStatus(@Param("resumeId") Long resumeId, @Param("taskStatus") TaskStatus taskStatus);
 }

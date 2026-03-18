@@ -1,94 +1,62 @@
 package org.nembx.app.module.resume.service;
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.nembx.app.common.ai.AiClient;
+import org.nembx.app.common.ai.AiPromptManager;
 import org.nembx.app.common.enums.TaskStatus;
 import org.nembx.app.common.exception.BusinessException;
-import org.nembx.app.common.exception.ErrorCode;
-import org.nembx.app.module.resume.enity.ResumeAnalysis;
-import org.nembx.app.module.resume.enity.dto.ResumeAnalysisResponseDTO;
-import org.nembx.app.module.resume.enity.res.ResumeAnalysisResponse;
-import org.nembx.app.module.resume.enity.res.ResumeAnalysisResponse.ScoreDetail;
-import org.nembx.app.module.resume.enity.res.ResumeAnalysisResponse.Suggestion;
+import org.nembx.app.common.utils.JsonUtils;
+import org.nembx.app.module.resume.entity.ResumeAnalysis;
+import org.nembx.app.module.resume.entity.dto.ResumeAnalysisResponseDTO;
+import org.nembx.app.module.resume.entity.res.ResumeAnalysisResponse;
+import org.nembx.app.module.resume.entity.res.ResumeAnalysisResponse.ScoreDetail;
+import org.nembx.app.module.resume.entity.res.ResumeAnalysisResponse.Suggestion;
 import org.nembx.app.module.resume.repository.ResumeAnalysisRepository;
-import org.nembx.app.module.resume.utils.JsonUtils;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.converter.BeanOutputConverter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.nembx.app.common.exception.ErrorCode.AI_CALL_ERROR;
+import static org.nembx.app.common.exception.ErrorCode.BAD_REQUEST;
 
 /**
  * @author Lian
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ResumeAiService {
-    private final ChatClient chatClient;
-
-    private final PromptTemplate systemPromptTemplate;
-
-    private final PromptTemplate userPromptTemplate;
-
+    private final AiClient aiClient;
+    private final AiPromptManager aiPromptManager;
     private final ResumeManageService resumeManageService;
-
     private final ResumeAnalysisRepository resumeAnalysisRepository;
 
-    private final BeanOutputConverter<ResumeAnalysisResponseDTO> outputConverter;
+    private final BeanOutputConverter<ResumeAnalysisResponseDTO> outputConverter = new BeanOutputConverter<>(ResumeAnalysisResponseDTO.class);
 
-
-    public ResumeAiService(
-            ChatClient.Builder chatClientBuilder,
-            @Value("classpath:prompt/resume_system_prompt.st") Resource systemPromptResource,
-            @Value("classpath:prompt/resume_user_prompt.st") Resource userPromptResource,
-            ResumeAnalysisRepository resumeAnalysisRepository,
-            ResumeManageService resumeManageService) throws IOException {
-        log.info("初始化AI服务");
-        this.systemPromptTemplate = new PromptTemplate(
-                systemPromptResource.getContentAsString(StandardCharsets.UTF_8)
-        );
-        this.userPromptTemplate = new PromptTemplate(
-                userPromptResource.getContentAsString(StandardCharsets.UTF_8)
-        );
-        this.chatClient = chatClientBuilder.build();
-        this.outputConverter = new BeanOutputConverter<>(ResumeAnalysisResponseDTO.class);
-        this.resumeAnalysisRepository = resumeAnalysisRepository;
-        this.resumeManageService = resumeManageService;
-    }
-
-    public ResumeAnalysisResponse analyzeResume(Long resumeId, String resumeText) {
+    public void analyzeResume(Long resumeId, String resumeText) {
         log.info("开始调用大模型分析简历, 简历ID: {}", resumeId);
         if (resumeText == null) {
             log.error("简历文本为空");
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "简历文本为空");
+            throw new BusinessException(BAD_REQUEST, "简历文本为空");
         }
-        resumeManageService.updateResume(resumeId, TaskStatus.PROCESSING);
-        ResumeAnalysisResponseDTO dto;
-        // 构建用户提示
-        String userPrompt = buildUserPrompt(userPromptTemplate, resumeText);
-        String systemPrompt = buildSystemPrompt(systemPromptTemplate);
+        resumeManageService.updateResumeStatus(resumeId, TaskStatus.PROCESSING);
 
         try {
-            // 使用流式或同步的方式调用 AI
-            dto = this.chatClient.prompt()
-                    .system(systemPrompt)
-                    .user(userPrompt)
-                    .call()
-                    .entity(outputConverter);
+            String systemPrompt = aiPromptManager.render("resume_system_prompt");
+            String userPrompt = aiPromptManager.render("resume_user_prompt", Map.of("resumeText", resumeText));
+
+            ResumeAnalysisResponseDTO dto = aiClient.call(systemPrompt, userPrompt, outputConverter);
             if (dto == null) {
                 log.error("AI 响应解析失败");
-                resumeManageService.updateResume(resumeId, TaskStatus.FAILED);
-                throw new BusinessException(ErrorCode.INTERNAL_ERROR, "AI 响应解析失败");
+                resumeManageService.updateResumeStatus(resumeId, TaskStatus.FAILED);
+                return;
             }
             log.debug("AI响应解析成功: overallScore={}", dto.overallScore());
-            // 转换为业务对象
+
             ResumeAnalysisResponse result = convertToResponse(dto, resumeText);
             log.info("简历分析完成，总分: {}", result.overallScore());
 
@@ -96,29 +64,14 @@ public class ResumeAiService {
             resumeAnalysisRepository.save(resumeAnalysis);
             log.info("保存简历分析结果到数据库");
 
-            resumeManageService.updateResume(resumeId, TaskStatus.COMPLETED);
-            log.info("AI响应解析成功: {}", result);
-            return result;
+            resumeManageService.updateResumeStatus(resumeId, TaskStatus.COMPLETED);
         } catch (Exception e) {
             log.error("调用 AI 接口分析简历失败, 简历ID: {}", resumeId, e);
-            resumeManageService.updateResume(resumeId, TaskStatus.FAILED);
-            throw new BusinessException(ErrorCode.INTERNAL_ERROR, "AI 分析失败");
+            resumeManageService.updateResumeStatus(resumeId, TaskStatus.FAILED);
+            throw new BusinessException(AI_CALL_ERROR, "AI 分析失败");
         }
     }
 
-    private String buildUserPrompt(PromptTemplate userPromptTemplate, String resumeText) {
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("resumeText", resumeText);
-        return userPromptTemplate.render(variables);
-    }
-
-    private String buildSystemPrompt(PromptTemplate systemPromptTemplate) {
-        return systemPromptTemplate.render();
-    }
-
-    /**
-     * 将AI响应转换为业务对象
-     */
     private ResumeAnalysisResponse convertToResponse(ResumeAnalysisResponseDTO dto, String originalText) {
         ScoreDetail scoreDetail = new ScoreDetail(
                 dto.scoreDetail().contentScore(),
@@ -142,9 +95,6 @@ public class ResumeAiService {
         );
     }
 
-    /**
-     * 将业务响应对象转换为数据库实体
-     */
     private ResumeAnalysis convertToEntity(Long resumeId, ResumeAnalysisResponse response) {
         ScoreDetail scoreDetail = response.scoreDetail();
         return new ResumeAnalysis()
