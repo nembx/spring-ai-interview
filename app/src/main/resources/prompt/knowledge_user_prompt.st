@@ -6,6 +6,9 @@
 {context}
 ---文档内容结束---
 
+## 聊天历史
+{history}
+
 ## 用户问题
 {question}
 
