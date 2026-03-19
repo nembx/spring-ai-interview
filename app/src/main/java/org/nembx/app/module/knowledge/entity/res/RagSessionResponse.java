@@ -1,4 +1,4 @@
-package org.nembx.app.module.knowledge.enity.res;
+package org.nembx.app.module.knowledge.entity.res;
 
 
 import java.time.LocalDateTime;

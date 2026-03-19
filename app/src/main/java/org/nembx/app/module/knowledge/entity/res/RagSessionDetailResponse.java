@@ -1,8 +1,8 @@
-package org.nembx.app.module.knowledge.enity.res;
+package org.nembx.app.module.knowledge.entity.res;
 
 
-import org.nembx.app.module.knowledge.enity.dto.KnowledgeListDTO;
-import org.nembx.app.module.knowledge.enity.dto.RagMessageDTO;
+import org.nembx.app.module.knowledge.entity.dto.KnowledgeListDTO;
+import org.nembx.app.module.knowledge.entity.dto.RagMessageDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
