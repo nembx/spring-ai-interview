@@ -43,7 +43,7 @@ public class FileHashUtils {
             byte[] hashBytes = digest.digest(data);
             return bytesToHex(hashBytes);
         } catch (NoSuchAlgorithmException e) {
-            log.error("哈希算法不支持: {}", HASH_ALGORITHM);
+            log.error("哈希算法不支持当前文件: {}", HASH_ALGORITHM);
             throw new BusinessException(ErrorCode.INTERNAL_ERROR, "计算文件哈希失败");
         }
     }
@@ -57,5 +57,9 @@ public class FileHashUtils {
             result.append(String.format("%02x", b));
         }
         return result.toString();
+    }
+
+    public static String hashChunk(String text) {
+        return calculateHash(text.getBytes());
     }
 }
