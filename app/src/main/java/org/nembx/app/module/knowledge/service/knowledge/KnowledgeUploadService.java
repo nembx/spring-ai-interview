@@ -4,7 +4,6 @@ package org.nembx.app.module.knowledge.service.knowledge;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.nembx.app.common.exception.BusinessException;
-import org.nembx.app.common.exception.ErrorCode;
 import org.nembx.app.common.service.DocumentParseService;
 import org.nembx.app.common.utils.FileHashUtils;
 import org.nembx.app.module.knowledge.entity.Knowledge;
@@ -16,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+
+import static org.nembx.app.common.exception.ErrorCode.BAD_REQUEST;
 
 /**
  * @author Lian
@@ -46,14 +47,30 @@ public class KnowledgeUploadService {
         String hash = FileHashUtils.calculateHash(file);
         log.info("文件hash: {}", hash);
 
-        Knowledge knowledgeByFileHash = knowledgeManageService.findKnowledgeByFileHash(hash);
-        if (knowledgeByFileHash != null) {
-            log.info("文件已存在, 文件名为: {}", originalFilename);
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "文件已存在");
+        Knowledge sameHash = knowledgeManageService.findKnowledgeByFileHash(hash);
+        if (sameHash != null) {
+            throw new BusinessException(BAD_REQUEST, "文件已存在");
+        }
+
+        // 同名文件：更新已有记录
+        Knowledge existing = knowledgeManageService.findLatestByName(originalFilename, category);
+        if (existing != null) {
+            String fileKey = knowledgeFileService.uploadFile(file);
+            String fileUrl = knowledgeFileService.getFileUrl(fileKey);
+
+            knowledgeManageService.replaceKnowledge(existing.getId(),
+                    new KnowledgeSaveDTO(hash, originalFilename, category, content, size, contentType, null, null, LocalDateTime.now()));
+            knowledgeManageService.updateKnowledgeStorge(existing.getId(), fileKey, fileUrl);
+
+            // 发布事件 -> 走增量向量化
+            eventPublisher.publishEvent(new KnowledgeListenerDTO(existing.getId(), content));
+            return;
         }
 
         Long knowledgeId = knowledgeManageService.saveKnowledge(
-                new KnowledgeSaveDTO(hash, originalFilename, category, content, size, contentType, null, null, LocalDateTime.now())
+                new KnowledgeSaveDTO(hash, originalFilename, category,
+                        content, size, contentType,
+                        null, null, LocalDateTime.now())
         );
         log.info("保存成功, 文件名为: {}", originalFilename);
 
