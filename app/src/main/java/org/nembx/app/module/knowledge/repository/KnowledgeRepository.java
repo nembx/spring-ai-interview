@@ -20,7 +20,5 @@ public interface KnowledgeRepository extends JpaRepository<Knowledge, Long> {
 
     List<Knowledge> findAllByCategory(String category);
 
-//    @Modifying
-//    @Query("update Knowledge set taskStatus = :status where id = :id")
-//    Integer updateKnowledgeStatus(@Param("status") TaskStatus status, @Param("id") Long id);
+    Optional<Knowledge> findFirstByFileNameAndCategoryOrderByUploadTimeDesc(String fileName, String category);
 }

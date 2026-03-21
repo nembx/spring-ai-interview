@@ -16,7 +16,10 @@ import org.nembx.app.module.knowledge.repository.KnowledgeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+
+import static org.nembx.app.common.exception.ErrorCode.NOT_FOUND;
 
 /**
  * @author Lian
@@ -42,7 +45,7 @@ public class KnowledgeManageService {
     @Transactional(rollbackFor = Exception.class)
     public void updateKnowledgeStatus(Long knowledgeId, TaskStatus status) {
         Knowledge knowledge = knowledgeRepository.findById(knowledgeId).orElseThrow(
-                () -> new BusinessException(ErrorCode.NOT_FOUND, "知识库不存在"));
+                () -> new BusinessException(NOT_FOUND, "知识库不存在"));
         knowledge.setTaskStatus(status);
         log.debug("更新知识状态成功, 知识ID: {}, 状态: {}", knowledgeId, status);
     }
@@ -50,10 +53,28 @@ public class KnowledgeManageService {
     @Transactional(rollbackFor = Exception.class)
     public void updateKnowledgeStorge(Long knowledgeId, String key, String url) {
         Knowledge knowledge = knowledgeRepository.findById(knowledgeId).orElseThrow(
-                () -> new BusinessException(ErrorCode.NOT_FOUND, "知识库不存在"));
+                () -> new BusinessException(NOT_FOUND, "知识库不存在"));
         knowledge.setStorageKey(key);
         knowledge.setStorageUrl(url);
         log.debug("更新知识存储成功, 知识ID: {}, 存储Key: {}, 存储URL: {}", knowledgeId, key, url);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void replaceKnowledge(Long knowledgeId, KnowledgeSaveDTO dto) {
+        Knowledge knowledge = getOneById(knowledgeId);
+        knowledge.setFileHash(dto.fileHash())
+                .setFileName(dto.fileName())
+                .setCategory(dto.category())
+                .setContent(dto.content())
+                .setFileSize(dto.fileSize())
+                .setFileType(dto.fileType())
+                .setUploadTime(LocalDateTime.now())
+                .setTaskStatus(TaskStatus.PENDING);
+    }
+
+    public Knowledge findLatestByName(String fileName, String category) {
+        return knowledgeRepository.findFirstByFileNameAndCategoryOrderByUploadTimeDesc(fileName, category)
+                .orElseThrow(() -> new BusinessException(NOT_FOUND, "获取知识失败"));
     }
 
     public Knowledge getOneById(Long knowledgeId) {
@@ -62,7 +83,7 @@ public class KnowledgeManageService {
             throw new BusinessException(ErrorCode.PARAM_ERROR, "获取知识失败");
         }
         return knowledgeRepository.findById(knowledgeId).orElseThrow(
-                () -> new BusinessException(ErrorCode.NOT_FOUND, "获取知识失败"));
+                () -> new BusinessException(NOT_FOUND, "获取知识失败"));
     }
 
     public List<KnowledgeListDTO> toListDTO(List<Knowledge> knowledgeList) {
