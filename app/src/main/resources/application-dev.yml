@@ -55,5 +55,9 @@ springdoc:
     operationsSorter: method  # UI 界面上接口按照 HTTP 方法排序
     tagsSorter: alpha         # 标签按照字母排序
   packages-to-scan: org.nembx.app.module
+
+knowledge:
+  topK: 5
+  minScore: 0.05
 server:
   port: 8080
