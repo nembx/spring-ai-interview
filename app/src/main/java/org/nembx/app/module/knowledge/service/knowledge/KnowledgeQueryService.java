@@ -6,10 +6,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.nembx.app.common.ai.AiClient;
 import org.nembx.app.common.ai.AiPromptManager;
+import org.nembx.app.common.enums.MessageType;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.exception.ErrorCode;
+import org.nembx.app.module.knowledge.entity.RagMessage;
 import org.nembx.app.module.knowledge.entity.dto.RetrievalContext;
 import org.springframework.ai.document.Document;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -31,12 +34,17 @@ public class KnowledgeQueryService {
     private final AiPromptManager aiPromptManager;
     private final KnowledgeVectorService knowledgeVectorService;
 
+    @Value("${knowledge.topK}")
+    private Integer topK;
+    @Value("${knowledge.minScore}")
+    private Double minScore;
+
     public String answerQuestion(Long knowledgeId, String question) {
-        return answerQuestion(List.of(knowledgeId), question);
+        return answerQuestion(List.of(knowledgeId), question, null);
     }
 
-    public String answerQuestion(List<Long> knowledgeIds, String question) {
-        RetrievalContext ctx = retrieve(knowledgeIds, question);
+    public String answerQuestion(List<Long> knowledgeIds, String question, List<RagMessage> ragMessages) {
+        RetrievalContext ctx = retrieve(knowledgeIds, question, ragMessages);
         if (ctx == null) {
             return NO_RESULT_RESPONSE;
         }
@@ -52,8 +60,8 @@ public class KnowledgeQueryService {
         }
     }
 
-    public Flux<String> answerQuestionStream(List<Long> knowledgeIds, String question) {
-        RetrievalContext ctx = retrieve(knowledgeIds, question);
+    public Flux<String> answerQuestionStream(List<Long> knowledgeIds, String question, List<RagMessage> ragMessages) {
+        RetrievalContext ctx = retrieve(knowledgeIds, question, ragMessages);
         if (ctx == null) {
             return Flux.just(NO_RESULT_RESPONSE);
         }
@@ -67,7 +75,7 @@ public class KnowledgeQueryService {
     /**
      * 检索知识库并构建 prompt 上下文，若参数无效或未检索到结果返回 null
      */
-    private RetrievalContext retrieve(List<Long> knowledgeIds, String question) {
+    private RetrievalContext retrieve(List<Long> knowledgeIds, String question, List<RagMessage> ragMessages) {
         log.info("开始查询知识库, 问题: {}", question);
 
         if (CollectionUtil.isEmpty(knowledgeIds) || question == null) {
@@ -75,9 +83,23 @@ public class KnowledgeQueryService {
             return null;
         }
 
+        String historyContext = "";
+        if (CollectionUtil.isNotEmpty(ragMessages)) {
+            StringBuilder historyBuilder = new StringBuilder();
+            for (RagMessage msg : ragMessages) {
+                String roleName = msg.getType() == MessageType.USER ? "用户" : "助手";
+                historyBuilder.append(roleName)
+                        .append(": ")
+                        .append(msg.getContent())
+                        .append("\n");
+            }
+            historyContext = historyBuilder.toString();
+            log.debug("组装的历史记录:\n{}", historyContext);
+        }
+
         question = question.trim();
 
-        List<Document> documents = knowledgeVectorService.similaritySearch(question, knowledgeIds, 5, 0.7);
+        List<Document> documents = knowledgeVectorService.similaritySearch(question, knowledgeIds, topK, minScore);
         if (CollectionUtil.isEmpty(documents)) {
             log.warn("查询知识库失败, 未找到相关知识");
             return null;
@@ -90,7 +112,8 @@ public class KnowledgeQueryService {
         log.debug("检索上下文: {}", context);
 
         String systemPrompt = aiPromptManager.render("knowledge_system_prompt");
-        String userPrompt = aiPromptManager.render("knowledge_user_prompt", Map.of("question", question, "context", context));
+        String userPrompt = aiPromptManager.render("knowledge_user_prompt",
+                Map.of("question", question, "context", context, "history", historyContext));
 
         return new RetrievalContext(systemPrompt, userPrompt);
     }

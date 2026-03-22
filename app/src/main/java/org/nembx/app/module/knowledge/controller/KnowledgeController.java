@@ -11,6 +11,7 @@ import org.nembx.app.module.knowledge.entity.res.KnowledgeResponse;
 import org.nembx.app.module.knowledge.service.knowledge.KnowledgeDeleteService;
 import org.nembx.app.module.knowledge.service.knowledge.KnowledgeManageService;
 import org.nembx.app.module.knowledge.service.knowledge.KnowledgeUploadService;
+import org.nembx.app.module.task.entity.res.TaskSubmitResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,12 +33,11 @@ public class KnowledgeController {
 
     private final KnowledgeUploadService knowledgeUploadService;
 
-    @Operation(summary = "上传知识库")
+    @Operation(summary = "上传知识库并解析")
     @PostMapping("/upload")
-    public Result<String> uploadKnowledge(@RequestParam("file") MultipartFile file,
-                                          @RequestParam String category) {
-        knowledgeUploadService.uploadAndParse(file, category);
-        return Result.success();
+    public Result<TaskSubmitResponse> uploadKnowledge(@RequestParam("file") MultipartFile file,
+                                                      @RequestParam String category) {
+        return Result.success(knowledgeUploadService.uploadAndParse(file, category));
     }
 
     @Operation(summary = "根据Id获取知识库")

@@ -12,6 +12,8 @@ import org.nembx.app.module.knowledge.entity.Knowledge;
 import org.nembx.app.module.knowledge.entity.dto.KnowledgeListDTO;
 import org.nembx.app.module.knowledge.entity.dto.KnowledgeSaveDTO;
 import org.nembx.app.module.knowledge.entity.res.KnowledgeResponse;
+import org.nembx.app.module.task.entity.TaskResourceType;
+import org.nembx.app.module.task.entity.res.TaskStatusResponse;
 import org.nembx.app.module.knowledge.repository.KnowledgeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +40,17 @@ public class KnowledgeManageService {
                 knowledge.getCategory(),
                 knowledge.getFileSize(),
                 knowledge.getFileType(),
+                knowledge.getUploadTime()
+        );
+    }
+
+    public TaskStatusResponse getTaskStatus(Long knowledgeId) {
+        Knowledge knowledge = getOneById(knowledgeId);
+        return new TaskStatusResponse(
+                knowledge.getId(),
+                TaskResourceType.KNOWLEDGE.getValue(),
+                knowledge.getFileName(),
+                knowledge.getTaskStatus(),
                 knowledge.getUploadTime()
         );
     }
@@ -74,7 +87,7 @@ public class KnowledgeManageService {
 
     public Knowledge findLatestByName(String fileName, String category) {
         return knowledgeRepository.findFirstByFileNameAndCategoryOrderByUploadTimeDesc(fileName, category)
-                .orElseThrow(() -> new BusinessException(NOT_FOUND, "获取知识失败"));
+                .orElse(null);
     }
 
     public Knowledge getOneById(Long knowledgeId) {
