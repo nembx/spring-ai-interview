@@ -3,12 +3,15 @@ package org.nembx.app.module.knowledge.service.knowledge;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.nembx.app.common.enums.TaskStatus;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.service.DocumentParseService;
 import org.nembx.app.common.utils.FileHashUtils;
 import org.nembx.app.module.knowledge.entity.Knowledge;
 import org.nembx.app.module.knowledge.entity.dto.KnowledgeListenerDTO;
 import org.nembx.app.module.knowledge.entity.dto.KnowledgeSaveDTO;
+import org.nembx.app.module.task.entity.TaskResourceType;
+import org.nembx.app.module.task.entity.res.TaskSubmitResponse;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +39,7 @@ public class KnowledgeUploadService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public void uploadAndParse(MultipartFile file, String category) {
+    public TaskSubmitResponse uploadAndParse(MultipartFile file, String category) {
         String contentType = file.getContentType();
         Long size = file.getSize();
         String originalFilename = file.getOriginalFilename();
@@ -64,7 +67,7 @@ public class KnowledgeUploadService {
 
             // 发布事件 -> 走增量向量化
             eventPublisher.publishEvent(new KnowledgeListenerDTO(existing.getId(), content));
-            return;
+            return new TaskSubmitResponse(existing.getId(), TaskResourceType.KNOWLEDGE.getValue(), TaskStatus.PENDING);
         }
 
         Long knowledgeId = knowledgeManageService.saveKnowledge(
@@ -82,5 +85,6 @@ public class KnowledgeUploadService {
         // 发布事件
         eventPublisher.publishEvent(new KnowledgeListenerDTO(knowledgeId, content));
         log.info("发布事件成功, 文件名为: {}", originalFilename);
+        return new TaskSubmitResponse(knowledgeId, TaskResourceType.KNOWLEDGE.getValue(), TaskStatus.PENDING);
     }
 }

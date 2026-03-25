@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.nembx.app.common.enums.TaskStatus;
+import org.nembx.app.common.utils.FileHashUtils;
 import org.nembx.app.module.knowledge.repository.VectorRepository;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.transformer.splitter.TextSplitter;
@@ -14,7 +15,8 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Lian
@@ -25,7 +27,7 @@ import java.util.List;
 public class KnowledgeVectorService {
     private final VectorStore vectorStore;
 
-    private TextSplitter textSplitter = new TokenTextSplitter();
+    private final TextSplitter textSplitter = new TokenTextSplitter();
 
     private final VectorRepository vectorRepository;
 
@@ -42,25 +44,51 @@ public class KnowledgeVectorService {
             List<Document> chunks = textSplitter.apply(List.of(new Document(content)));
             log.debug("分块数量: {}", chunks.size());
 
+            Map<String, Document> chunkMap = new LinkedHashMap<>();
+            AtomicInteger index = new AtomicInteger();
             // 添加知识ID
-            chunks.forEach(chunk ->
-                    chunk.getMetadata().put("kb_id", knowledgeId.toString())
+            chunks.forEach(chunk -> {
+                        String text = chunk.getText();
+                        if (text == null) return;
+                        String hash = FileHashUtils.hashChunk(text);
+                        Map<String, Object> metadata = chunk.getMetadata();
+                        metadata.put("kb_id", knowledgeId.toString());
+                        metadata.put("chunk_hash", hash);
+                        metadata.put("chunk_index", index.getAndIncrement());
+                        chunkMap.put(hash, chunk);
+                    }
             );
 
-            int totalChunks = chunks.size();
-            int batchCount = (totalChunks + MAX_BATCH_SIZE - 1) / MAX_BATCH_SIZE; // 向上取整
-            log.info("分块数量: {}, 批次数量: {}", totalChunks, batchCount);
+            // 查询旧 chunk
+            List<String> storedChunkHashes = vectorRepository.findChunksHashByKnowledgeId(knowledgeId);
+            boolean hasLegacyChunks = storedChunkHashes.stream()
+                    .anyMatch(hash -> hash == null || hash.isBlank());
+            if (hasLegacyChunks) {
+                log.debug("检测到缺少 chunk_hash 的旧向量数据, 将全量重建知识向量, 知识ID: {}", knowledgeId);
+                vectorRepository.deleteByKnowledgeId(knowledgeId);
+                storedChunkHashes = List.of();
+            }
+            Set<String> oldHashes = storedChunkHashes.stream()
+                    .filter(hash -> hash != null && !hash.isBlank())
+                    .collect(HashSet::new, HashSet::add, HashSet::addAll);
+            Set<String> newHashes = chunkMap.keySet();
 
-            // 分批次向量化
-            for (int i = 0; i < batchCount; i++) {
-                int start = i * MAX_BATCH_SIZE;
-                int end = Math.min(start + MAX_BATCH_SIZE, totalChunks);
-                List<Document> batch = chunks.subList(start, end);
-                log.info("向量化批次: 第{}批", i);
+            // 计算差异
+            List<String> toDelete = oldHashes.stream().filter(h -> !newHashes.contains(h)).toList();
+            List<Document> toAdd = newHashes.stream()
+                    .filter(h -> !oldHashes.contains(h))
+                    .map(chunkMap::get)
+                    .toList();
+
+            // 删除旧的
+            vectorRepository.deleteChunksByKnowledgeIdAndChunkHashList(knowledgeId, toDelete);
+
+            // 只新增差量
+            for (int i = 0; i < toAdd.size(); i += MAX_BATCH_SIZE) {
+                List<Document> batch = toAdd.subList(i, Math.min(i + MAX_BATCH_SIZE, toAdd.size()));
                 vectorStore.add(batch);
             }
             knowledgeManageService.updateKnowledgeStatus(knowledgeId, TaskStatus.COMPLETED);
-            log.info("向量化完成, 知识ID: {}", knowledgeId);
         } catch (Exception e) {
             log.error("向量化知识库失败, 知识ID: {}", knowledgeId, e);
             knowledgeManageService.updateKnowledgeStatus(knowledgeId, TaskStatus.FAILED);
@@ -76,14 +104,16 @@ public class KnowledgeVectorService {
                     .query(query)
                     .topK(Math.max(topK, 1));
             if (minScore > 0) {
-                log.info("过滤相似度分数: {}", minScore);
+                log.debug("过滤相似度分数: {}", minScore);
                 builder.similarityThreshold(minScore);
             }
-            if (knowledgeIds != null && !knowledgeIds.isEmpty()) {
-                log.info("过滤知识ID: {}", knowledgeIds);
+            if (CollectionUtil.isEmpty(knowledgeIds)) {
+                log.debug("过滤知识ID: {}", knowledgeIds);
                 builder.filterExpression("kb_id IN [%s]".formatted(String.join(",", knowledgeIds.stream().map(Object::toString).toList())));
             }
             List<Document> resDocuments = vectorStore.similaritySearch(builder.build());
+
+
             if (CollectionUtil.isEmpty(resDocuments)) {
                 log.warn("相似度搜索结果为空, 查询: {}, 知识ID: {}", query, knowledgeIds);
                 return List.of();
