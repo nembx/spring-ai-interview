@@ -56,7 +56,7 @@ springdoc:
     tagsSorter: alpha         # 标签按照字母排序
   packages-to-scan: org.nembx.app.module
 
-knowledge:
+vector:
   topK: 5
   minScore: 0.05
 server:
