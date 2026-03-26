@@ -5,4 +5,4 @@ spring:
     import:
       - optional:file:app/.env[.properties]
   profiles:
-    active: dev # dev, test, prod
+    active: dev
