@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.exception.ErrorCode;
-import org.nembx.app.module.resume.entity.Resume;
+import org.nembx.app.module.resume.entity.pojo.Resume;
 import org.nembx.app.module.resume.entity.res.ResumeAnalysisResponse;
 import org.springframework.stereotype.Service;
 
