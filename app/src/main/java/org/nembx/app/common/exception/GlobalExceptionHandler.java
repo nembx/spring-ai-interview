@@ -22,14 +22,12 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
-    @ResponseStatus(HttpStatus.OK)
     public Result<Void> handleBusinessException(BusinessException e) {
         log.warn("业务异常：code={}, message={}", e.getCode(), e.getMessage());
         return Result.error(e.getCode(), e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.OK)
     public Result<Void> handleValidException(MethodArgumentNotValidException e) {
         String message = e.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
@@ -39,7 +37,6 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.OK)
     public Result<Void> handleException(Exception e) {
         log.error("系统异常：{}", e.getMessage());
         return Result.error(ErrorCode.INTERNAL_ERROR.getCode(), ErrorCode.INTERNAL_ERROR.getMessage());
@@ -50,6 +47,6 @@ public class GlobalExceptionHandler {
         // 降级为 WARN 级别，或者干脆不打印堆栈，只记录一行日志
         log.warn("静态资源不存在: {}", e.getMessage());
         // 返回给前端一个友好的 404 提示，而不是报系统内部错误
-        return Result.error(404, "您访问的资源或接口不存在");
+        return Result.error(ErrorCode.NOT_FOUND.getCode(), ErrorCode.NOT_FOUND.getMessage());
     }
 }

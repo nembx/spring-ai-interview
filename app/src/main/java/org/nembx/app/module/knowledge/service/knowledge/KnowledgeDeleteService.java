@@ -3,7 +3,7 @@ package org.nembx.app.module.knowledge.service.knowledge;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.nembx.app.module.knowledge.entity.Knowledge;
+import org.nembx.app.module.knowledge.entity.pojo.Knowledge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
