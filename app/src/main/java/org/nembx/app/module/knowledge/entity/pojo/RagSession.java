@@ -1,4 +1,4 @@
-package org.nembx.app.module.knowledge.entity;
+package org.nembx.app.module.knowledge.entity.pojo;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

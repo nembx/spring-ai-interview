@@ -2,7 +2,7 @@ package org.nembx.app.module.knowledge.repository;
 
 
 import org.nembx.app.common.enums.SessionStatus;
-import org.nembx.app.module.knowledge.entity.RagSession;
+import org.nembx.app.module.knowledge.entity.pojo.RagSession;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
