@@ -1,23 +1,12 @@
 package org.nembx.app.common.result;
 
 
-import lombok.Getter;
 import org.nembx.app.common.exception.ErrorCode;
 
 /**
  * @author Lian
  */
-@Getter
-public class Result<T> {
-    private final Integer code;
-    private final String message;
-    private final T data;
-
-    public Result(Integer code, String message, T data) {
-        this.code = code;
-        this.message = message;
-        this.data = data;
-    }
+public record Result<T>(Integer code, String message, T data) {
 
     public static <T> Result<T> success() {
         return new Result<>(ErrorCode.SUCCESS.getCode(), "success", null);
