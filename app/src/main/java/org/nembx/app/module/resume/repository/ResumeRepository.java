@@ -1,7 +1,7 @@
 package org.nembx.app.module.resume.repository;
 
 
-import org.nembx.app.module.resume.entity.Resume;
+import org.nembx.app.module.resume.entity.pojo.Resume;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

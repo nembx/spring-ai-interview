@@ -3,7 +3,7 @@ package org.nembx.app.module.resume.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.nembx.app.module.resume.entity.Resume;
+import org.nembx.app.module.resume.entity.pojo.Resume;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

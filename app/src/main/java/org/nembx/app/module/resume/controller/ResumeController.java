@@ -11,6 +11,7 @@ import org.nembx.app.module.resume.entity.res.ExportParamResponse;
 import org.nembx.app.module.resume.entity.res.ResumeDetailResponse;
 import org.nembx.app.module.resume.entity.res.ResumeExportResponse;
 import org.nembx.app.module.resume.entity.res.ResumeResponse;
+import org.nembx.app.module.task.entity.res.TaskSubmitResponse;
 import org.nembx.app.module.resume.service.ResumeDeleteService;
 import org.nembx.app.module.resume.service.ResumeExportService;
 import org.nembx.app.module.resume.service.ResumeManageService;
@@ -44,9 +45,8 @@ public class ResumeController {
 
     @Operation(summary = "上传简历")
     @PostMapping("/upload")
-    public Result<String> uploadResume(@RequestParam("file") MultipartFile file) {
-        resumeUploadService.uploadAndAnalyze(file);
-        return Result.success();
+    public Result<TaskSubmitResponse> uploadResume(@RequestParam("file") MultipartFile file) {
+        return Result.success(resumeUploadService.uploadAndAnalyze(file));
     }
 
     @Operation(summary = "获取简历")
