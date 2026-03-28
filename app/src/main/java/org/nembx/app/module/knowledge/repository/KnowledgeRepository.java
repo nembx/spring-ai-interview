@@ -1,7 +1,7 @@
 package org.nembx.app.module.knowledge.repository;
 
 
-import org.nembx.app.module.knowledge.entity.Knowledge;
+import org.nembx.app.module.knowledge.entity.pojo.Knowledge;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

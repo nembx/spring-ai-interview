@@ -9,10 +9,10 @@ import org.nembx.app.common.ai.AiPromptManager;
 import org.nembx.app.common.enums.MessageType;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.exception.ErrorCode;
-import org.nembx.app.module.knowledge.entity.RagMessage;
+import org.nembx.app.module.knowledge.entity.pojo.RagMessage;
 import org.nembx.app.module.knowledge.entity.dto.RetrievalContext;
+import org.nembx.app.module.knowledge.properties.VectorProperties;
 import org.springframework.ai.document.Document;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -34,10 +34,7 @@ public class KnowledgeQueryService {
     private final AiPromptManager aiPromptManager;
     private final KnowledgeVectorService knowledgeVectorService;
 
-    @Value("${knowledge.topK}")
-    private Integer topK;
-    @Value("${knowledge.minScore}")
-    private Double minScore;
+    private final VectorProperties vectorProperties;
 
     public String answerQuestion(Long knowledgeId, String question) {
         return answerQuestion(List.of(knowledgeId), question, null);
@@ -99,7 +96,8 @@ public class KnowledgeQueryService {
 
         question = question.trim();
 
-        List<Document> documents = knowledgeVectorService.similaritySearch(question, knowledgeIds, topK, minScore);
+        List<Document> documents = knowledgeVectorService.similaritySearch(
+                question, knowledgeIds, vectorProperties.getTopK(), vectorProperties.getMinScore());
         if (CollectionUtil.isEmpty(documents)) {
             log.warn("查询知识库失败, 未找到相关知识");
             return null;

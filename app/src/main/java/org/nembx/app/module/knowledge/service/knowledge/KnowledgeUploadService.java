@@ -3,14 +3,14 @@ package org.nembx.app.module.knowledge.service.knowledge;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.nembx.app.common.enums.TaskResourceType;
 import org.nembx.app.common.enums.TaskStatus;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.service.DocumentParseService;
 import org.nembx.app.common.utils.FileHashUtils;
-import org.nembx.app.module.knowledge.entity.Knowledge;
+import org.nembx.app.module.knowledge.entity.pojo.Knowledge;
 import org.nembx.app.module.knowledge.entity.dto.KnowledgeListenerDTO;
 import org.nembx.app.module.knowledge.entity.dto.KnowledgeSaveDTO;
-import org.nembx.app.module.task.entity.TaskResourceType;
 import org.nembx.app.module.task.entity.res.TaskSubmitResponse;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
