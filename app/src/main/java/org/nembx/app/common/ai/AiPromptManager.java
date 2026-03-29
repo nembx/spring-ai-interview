@@ -1,0 +1,65 @@
+package org.nembx.app.common.ai;
+
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * 统一 Prompt 模板管理器，负责加载、缓存和渲染 Prompt 模板。
+ * 模板文件存放在 classpath:prompt/{name}.st
+ *
+ * @author Lian
+ */
+@Service
+@Slf4j
+public class AiPromptManager {
+    private static final String PROMPT_PREFIX = "classpath:prompt/";
+    private static final String PROMPT_SUFFIX = ".st";
+
+    private final ResourceLoader resourceLoader;
+    private final ConcurrentHashMap<String, PromptTemplate> cache = new ConcurrentHashMap<>();
+
+    public AiPromptManager(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
+
+    /**
+     * 获取模板（带缓存）
+     */
+    public PromptTemplate getTemplate(String name) {
+        return cache.computeIfAbsent(name, this::loadTemplate);
+    }
+
+    /**
+     * 渲染无参数模板
+     */
+    public String render(String name) {
+        return getTemplate(name).render();
+    }
+
+    /**
+     * 渲染带参数模板
+     */
+    public String render(String name, Map<String, Object> variables) {
+        return getTemplate(name).render(variables);
+    }
+
+    private PromptTemplate loadTemplate(String name) {
+        String path = PROMPT_PREFIX + name + PROMPT_SUFFIX;
+        try {
+            String content = resourceLoader.getResource(path)
+                    .getContentAsString(StandardCharsets.UTF_8);
+            log.info("[Prompt模板加载] {}", path);
+            return new PromptTemplate(content);
+        } catch (IOException e) {
+            throw new IllegalStateException("加载Prompt模板失败: " + path, e);
+        }
+    }
+}
