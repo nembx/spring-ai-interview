@@ -1,4 +1,4 @@
-package org.nembx.app.module.task.entity;
+package org.nembx.app.common.enums;
 
 
 import lombok.Getter;

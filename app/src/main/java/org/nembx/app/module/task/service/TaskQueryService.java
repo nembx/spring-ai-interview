@@ -2,9 +2,9 @@ package org.nembx.app.module.task.service;
 
 
 import lombok.RequiredArgsConstructor;
+import org.nembx.app.common.enums.TaskResourceType;
 import org.nembx.app.module.knowledge.service.knowledge.KnowledgeManageService;
 import org.nembx.app.module.resume.service.ResumeManageService;
-import org.nembx.app.module.task.entity.TaskResourceType;
 import org.nembx.app.module.task.entity.res.TaskStatusResponse;
 import org.springframework.stereotype.Service;
 

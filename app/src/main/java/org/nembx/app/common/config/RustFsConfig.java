@@ -2,6 +2,7 @@ package org.nembx.app.common.config;
 
 
 import lombok.RequiredArgsConstructor;
+import org.nembx.app.common.properties.RustFsProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -27,24 +28,24 @@ public class RustFsConfig {
 
     /**
      * 创建并配置S3客户端Bean。
-     * 
+     *
      * @return 配置好的S3Client实例
      */
     @Bean
     public S3Client s3Client() {
         // 设置S3服务的自定义端点URL
         URI endpoint = URI.create(rustFsProperties.getEndpoint());
-        
+
         // 设置S3服务所在的区域
         Region region = Region.of(rustFsProperties.getRegion());
-        
+
         // 使用访问密钥和秘密密钥创建静态凭证提供者
         AwsBasicCredentials credentials = AwsBasicCredentials.create(
-            rustFsProperties.getAccessKey(),
-            rustFsProperties.getSecretKey()
+                rustFsProperties.getAccessKey(),
+                rustFsProperties.getSecretKey()
         );
         StaticCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(credentials);
-        
+
         // 构建并返回S3客户端实例
         return S3Client.builder()
                 .endpointOverride(endpoint)

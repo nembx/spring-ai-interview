@@ -1,4 +1,4 @@
-package org.nembx.app.common.config;
+package org.nembx.app.common.properties;
 
 
 import lombok.Data;
