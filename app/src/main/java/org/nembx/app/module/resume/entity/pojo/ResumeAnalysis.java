@@ -1,4 +1,4 @@
-package org.nembx.app.module.resume.entity;
+package org.nembx.app.module.resume.entity.pojo;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,20 +30,25 @@ public class ResumeAnalysis {
     @Schema(description = "总分")
     private Integer overallScore;
 
+    // 内容完整性 (0-25)
     @Schema(description = "内容完整性")
-    private Integer contentScore;      // 内容完整性 (0-25)
+    private Integer contentScore;
 
+    // 结构清晰度 (0-20)
     @Schema(description = "结构清晰度")
-    private Integer structureScore;    // 结构清晰度 (0-20)
+    private Integer structureScore;
 
+    // 技能匹配度 (0-25)
     @Schema(description = "技能匹配度")
-    private Integer skillMatchScore;   // 技能匹配度 (0-25)
+    private Integer skillMatchScore;
 
+    // 表达专业性 (0-15)
     @Schema(description = "表达专业性")
-    private Integer expressionScore;   // 表达专业性 (0-15)
+    private Integer expressionScore;
 
+    // 项目经验 (0-15)
     @Schema(description = "项目经验")
-    private Integer projectScore;      // 项目经验 (0-15)
+    private Integer projectScore;
 
     @Schema(description = "简历摘要")
     @Column(columnDefinition = "TEXT")

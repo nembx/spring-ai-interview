@@ -3,13 +3,16 @@ package org.nembx.app.module.resume.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.nembx.app.common.enums.TaskResourceType;
+import org.nembx.app.common.enums.TaskStatus;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.service.DocumentParseService;
 import org.nembx.app.common.service.FileCheckService;
 import org.nembx.app.common.utils.FileHashUtils;
-import org.nembx.app.module.resume.entity.Resume;
+import org.nembx.app.module.resume.entity.pojo.Resume;
 import org.nembx.app.module.resume.entity.dto.ResumeListenerDTO;
 import org.nembx.app.module.resume.entity.dto.ResumeSaveDTO;
+import org.nembx.app.module.task.entity.res.TaskSubmitResponse;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +41,7 @@ public class ResumeUploadService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(rollbackFor = Exception.class)
-    public void uploadAndAnalyze(MultipartFile file) {
+    public TaskSubmitResponse uploadAndAnalyze(MultipartFile file) {
         String contentType = file.getContentType();
         Long size = file.getSize();
         String originalFilename = file.getOriginalFilename();
@@ -49,13 +52,13 @@ public class ResumeUploadService {
             log.error("不支持格式: {}, 请上传正确的简历文件", fileExtension);
             throw new BusinessException(UPLOAD_FAIL, "请上传正确的简历文件");
         }
-        log.info("收到简历, 文件名为: {}, 大小为: {}", originalFilename, size);
+        log.debug("收到简历, 文件名为: {}, 大小为: {}", originalFilename, size);
 
 
         String fileHash = FileHashUtils.calculateHash(file);
         Optional<Resume> existingResume = resumeManageService.checkIfDuplicate(fileHash);
         if (existingResume.isPresent()) {
-            log.info("检测到重复简历, resumeId={}", existingResume.get().getId());
+            log.warn("检测到重复简历, resumeId={}", existingResume.get().getId());
             throw new BusinessException(UPLOAD_FAIL, "该简历已上传过，请勿重复上传");
         }
 
@@ -64,7 +67,7 @@ public class ResumeUploadService {
             log.warn("简历解析失败, 文件名为: {}", originalFilename);
             throw new BusinessException(BAD_REQUEST, "简历解析失败");
         }
-        log.info("简历解析成功, 文件名为: {}, 内容长度: {} 字符", originalFilename, content.length());
+        log.debug("简历解析成功, 文件名为: {}, 内容长度: {} 字符", originalFilename, content.length());
 
         // 保存简历
         Long resumeId = resumeManageService.saveResume(
@@ -75,10 +78,11 @@ public class ResumeUploadService {
         String fileKey = resumeFileService.uploadResume(file);
         String fileUrl = resumeFileService.getResumeUrl(fileKey);
         resumeManageService.updateResumeStorge(resumeId, fileKey, fileUrl);
-        log.info("简历上传成功, 文件名为: {}, 文件路径为: {}", originalFilename, fileUrl);
+        log.debug("简历上传成功, 文件名为: {}, 文件路径为: {}", originalFilename, fileUrl);
 
 
         eventPublisher.publishEvent(new ResumeListenerDTO(resumeId, content));
-        log.info("简历事件发布成功, 文件名为: {}", originalFilename);
+        log.debug("简历事件发布成功, 文件名为: {}", originalFilename);
+        return new TaskSubmitResponse(resumeId, TaskResourceType.RESUME.getValue(), TaskStatus.PENDING);
     }
 }

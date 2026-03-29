@@ -1,7 +1,7 @@
 package org.nembx.app.module.resume.entity.res;
 
 
-import org.nembx.app.module.resume.entity.Resume;
+import org.nembx.app.module.resume.entity.pojo.Resume;
 
 /**
  * @author Lian
