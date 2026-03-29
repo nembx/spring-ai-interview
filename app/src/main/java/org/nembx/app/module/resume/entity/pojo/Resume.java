@@ -1,4 +1,4 @@
-package org.nembx.app.module.resume.entity;
+package org.nembx.app.module.resume.entity.pojo;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;

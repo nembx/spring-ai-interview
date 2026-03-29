@@ -8,7 +8,7 @@ import org.nembx.app.common.ai.AiPromptManager;
 import org.nembx.app.common.enums.TaskStatus;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.utils.JsonUtils;
-import org.nembx.app.module.resume.entity.ResumeAnalysis;
+import org.nembx.app.module.resume.entity.pojo.ResumeAnalysis;
 import org.nembx.app.module.resume.entity.dto.ResumeAnalysisResponseDTO;
 import org.nembx.app.module.resume.entity.res.ResumeAnalysisResponse;
 import org.nembx.app.module.resume.entity.res.ResumeAnalysisResponse.ScoreDetail;
