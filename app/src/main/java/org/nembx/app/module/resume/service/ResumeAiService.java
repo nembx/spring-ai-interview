@@ -58,11 +58,11 @@ public class ResumeAiService {
             log.debug("AI响应解析成功: overallScore={}", dto.overallScore());
 
             ResumeAnalysisResponse result = convertToResponse(dto, resumeText);
-            log.info("简历分析完成，总分: {}", result.overallScore());
+            log.debug("简历分析完成，总分: {}", result.overallScore());
 
             ResumeAnalysis resumeAnalysis = convertToEntity(resumeId, result);
             resumeAnalysisRepository.save(resumeAnalysis);
-            log.info("保存简历分析结果到数据库");
+            log.debug("保存简历分析结果到数据库");
 
             resumeManageService.updateResumeStatus(resumeId, TaskStatus.COMPLETED);
         } catch (Exception e) {
