@@ -52,7 +52,7 @@ public class KnowledgeVectorService {
                         if (text == null) return;
                         String hash = FileHashUtils.hashChunk(text);
                         Map<String, Object> metadata = chunk.getMetadata();
-                        metadata.put("kb_id", knowledgeId.toString());
+                        metadata.put("kb_id", knowledgeId);
                         metadata.put("chunk_hash", hash);
                         metadata.put("chunk_index", index.getAndIncrement());
                         chunkMap.put(hash, chunk);
@@ -107,9 +107,10 @@ public class KnowledgeVectorService {
                 log.debug("过滤相似度分数: {}", minScore);
                 builder.similarityThreshold(minScore);
             }
-            if (CollectionUtil.isEmpty(knowledgeIds)) {
+            if (CollectionUtil.isNotEmpty(knowledgeIds)) {
                 log.debug("过滤知识ID: {}", knowledgeIds);
-                builder.filterExpression("kb_id IN [%s]".formatted(String.join(",", knowledgeIds.stream().map(Object::toString).toList())));
+                builder.filterExpression("kb_id IN [%s]".formatted(
+                        String.join(",", knowledgeIds.stream().map(String::valueOf).toList())));
             }
             List<Document> resDocuments = vectorStore.similaritySearch(builder.build());
 
