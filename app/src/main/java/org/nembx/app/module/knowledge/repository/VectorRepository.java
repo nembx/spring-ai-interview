@@ -28,11 +28,11 @@ public class VectorRepository {
         try {
             String sql = """
                         DELETE FROM vector_store
-                         WHERE metadata->>'kb_id' = ?
+                         WHERE (metadata->>'kb_id')::bigint = ?
                     """;
 
             // 执行SQL
-            int deletedRows = jdbcTemplate.update(sql, knowledgeId.toString());
+            int deletedRows = jdbcTemplate.update(sql, knowledgeId);
 
             if (deletedRows > 0)
                 log.info("删除向量成功, 删除行数: {}", deletedRows);
@@ -50,13 +50,13 @@ public class VectorRepository {
             String sql = """
                         SELECT metadata->>'chunk_hash'
                           FROM vector_store
-                         WHERE metadata->>'kb_id' = ?
+                         WHERE (metadata->>'kb_id')::bigint = ?
                     """;
 
             // 执行SQL
             return jdbcTemplate.query(
                     sql, (rs, rowNum) -> rs.getString(1),
-                    knowledgeId.toString());
+                    knowledgeId);
         } catch (Exception e) {
             log.error("查询向量分块哈希失败, 知识ID: {}", knowledgeId, e);
             throw new RuntimeException(e);
@@ -74,11 +74,11 @@ public class VectorRepository {
                 String placeholders = String.join(",", batch.stream().map(h -> "?").toList());
                 String sql = """
                             DELETE FROM vector_store
-                                   WHERE metadata->>'kb_id' = ?
+                                   WHERE (metadata->>'kb_id')::bigint = ?
                                      AND metadata->>'chunk_hash' IN (%s)
                         """.formatted(placeholders);
                 List<Object> args = new ArrayList<>();
-                args.add(knowledgeId.toString());
+                args.add(knowledgeId);
                 args.addAll(batch);
                 jdbcTemplate.update(sql, args.toArray());
             }
