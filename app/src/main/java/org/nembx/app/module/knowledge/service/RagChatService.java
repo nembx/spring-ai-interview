@@ -38,8 +38,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class RagChatService {
-    private record PreparedChatContext(Long userMessageId, Long assistantMessageId) {
-    }
+    private record PreparedChatContext(Long userMessageId, Long assistantMessageId) {}
 
     private final RagSessionRepository ragSessionRepository;
 
