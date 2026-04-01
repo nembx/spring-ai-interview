@@ -5,17 +5,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.result.Result;
+import org.nembx.app.module.resume.entity.pojo.Resume;
 import org.nembx.app.module.resume.entity.res.ExportParamResponse;
 import org.nembx.app.module.resume.entity.res.ResumeDetailResponse;
 import org.nembx.app.module.resume.entity.res.ResumeExportResponse;
 import org.nembx.app.module.resume.entity.res.ResumeResponse;
+import org.nembx.app.module.resume.service.*;
 import org.nembx.app.module.task.entity.res.TaskSubmitResponse;
-import org.nembx.app.module.resume.service.ResumeDeleteService;
-import org.nembx.app.module.resume.service.ResumeExportService;
-import org.nembx.app.module.resume.service.ResumeManageService;
-import org.nembx.app.module.resume.service.ResumeUploadService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +41,8 @@ public class ResumeController {
     private final ResumeDeleteService resumeDeleteService;
 
     private final ResumeExportService resumeExportService;
+
+    private final ResumeAiService resumeAiService;
 
     @Operation(summary = "上传简历")
     @PostMapping("/upload")
@@ -87,5 +88,13 @@ public class ResumeController {
             log.error("导出简历失败, resumeId={}", resumeId, e);
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @Operation(summary = "重新分析简历")
+    @PostMapping("/reAnalyze/{resumeId}")
+    public Result<Void> reAnalyzeResume(@PathVariable Long resumeId) {
+        Resume resume = resumeManageService.getOneById(resumeId);
+        resumeAiService.analyzeResume(resumeId, resume.getContent());
+        return Result.success();
     }
 }
