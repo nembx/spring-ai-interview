@@ -7,10 +7,12 @@ import lombok.RequiredArgsConstructor;
 import org.nembx.app.common.exception.ErrorCode;
 import org.nembx.app.common.result.Result;
 import org.nembx.app.module.knowledge.entity.dto.KnowledgeListDTO;
+import org.nembx.app.module.knowledge.entity.pojo.Knowledge;
 import org.nembx.app.module.knowledge.entity.res.KnowledgeResponse;
 import org.nembx.app.module.knowledge.service.knowledge.KnowledgeDeleteService;
 import org.nembx.app.module.knowledge.service.knowledge.KnowledgeManageService;
 import org.nembx.app.module.knowledge.service.knowledge.KnowledgeUploadService;
+import org.nembx.app.module.knowledge.service.knowledge.KnowledgeVectorService;
 import org.nembx.app.module.task.entity.res.TaskSubmitResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,6 +34,8 @@ public class KnowledgeController {
     private final KnowledgeDeleteService knowledgeDeleteService;
 
     private final KnowledgeUploadService knowledgeUploadService;
+
+    private final KnowledgeVectorService knowledgeVectorService;
 
     @Operation(summary = "上传知识库并解析")
     @PostMapping("/upload")
@@ -67,6 +71,14 @@ public class KnowledgeController {
     @GetMapping("/list/{category}")
     public Result<List<KnowledgeListDTO>> getKnowledgeByCategory(@PathVariable String category) {
         return Result.success(knowledgeManageService.findAllByCategory(category));
+    }
+
+    @Operation(summary = "重新向量化知识库")
+    @PostMapping("/reVector/{knowledgeId}")
+    public Result<Void> reVectorKnowledge(@PathVariable Long knowledgeId){
+        Knowledge knowledge = knowledgeManageService.getOneById(knowledgeId);
+        knowledgeVectorService.vectorizeKnowledge(knowledgeId, knowledge.getContent());
+        return Result.success();
     }
 
 }
