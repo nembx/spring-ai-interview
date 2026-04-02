@@ -24,7 +24,7 @@ spring:
       # Embedding模型配置
       embedding:
         options:
-          model: qwen3-vl-embedding
+          model: ${EMBEDDING_MODEL}
     # 禁用自动重试机制，让异常立即返回
     retry:
       max-attempts: 1  # 不重试，失败立即返回
@@ -35,7 +35,7 @@ spring:
         index-type: HNSW
         distance-type: COSINE_DISTANCE
         dimensions: 1024  # 实际生成的向量维度
-        initialize-schema: false # 开发环境设置为 true，方便快速启动。生产环境设置为 false，手动管理数据库 schema，避免意外变更。
+        initialize-schema: true # 开发环境设置为 true，方便快速启动。生产环境设置为 false，手动管理数据库 schema，避免意外变更。
         remove-existing-vector-store-table: false  # 保留现有表和数据
   threads:
     virtual:
@@ -55,6 +55,11 @@ springdoc:
     operationsSorter: method  # UI 界面上接口按照 HTTP 方法排序
     tagsSorter: alpha         # 标签按照字母排序
   packages-to-scan: org.nembx.app.module
+
+logging:
+  level:
+    # mac 需要将该类的日志级别设置为 OFF 或 FATAL
+    io.netty.resolver.dns.DnsServerAddressStreamProviders: OFF
 
 vector:
   topK: 5

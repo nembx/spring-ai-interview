@@ -88,6 +88,7 @@ public class KnowledgeVectorService {
                 List<Document> batch = toAdd.subList(i, Math.min(i + MAX_BATCH_SIZE, toAdd.size()));
                 vectorStore.add(batch);
             }
+            log.info("向量化知识库完成, 知识ID: {}", knowledgeId);
             knowledgeManageService.updateKnowledgeStatus(knowledgeId, TaskStatus.COMPLETED);
         } catch (Exception e) {
             log.error("向量化知识库失败, 知识ID: {}", knowledgeId, e);
