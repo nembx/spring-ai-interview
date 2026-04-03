@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.nembx.app.common.enums.TaskResourceType;
 import org.nembx.app.common.enums.TaskStatus;
 import org.nembx.app.common.exception.BusinessException;
+import org.nembx.app.common.exception.ErrorCode;
 import org.nembx.app.common.service.DocumentParseService;
 import org.nembx.app.common.utils.FileHashUtils;
 import org.nembx.app.module.knowledge.entity.pojo.Knowledge;
@@ -19,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
-import static org.nembx.app.common.exception.ErrorCode.BAD_REQUEST;
 
 /**
  * @author Lian
@@ -52,7 +52,7 @@ public class KnowledgeUploadService {
 
         Knowledge sameHash = knowledgeManageService.findKnowledgeByFileHash(hash);
         if (sameHash != null) {
-            throw new BusinessException(BAD_REQUEST, "文件已存在");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "文件已存在");
         }
 
         // 同名文件：更新已有记录

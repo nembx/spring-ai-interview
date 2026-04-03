@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.nembx.app.common.enums.TaskResourceType;
 import org.nembx.app.common.enums.TaskStatus;
 import org.nembx.app.common.exception.BusinessException;
+import org.nembx.app.common.exception.ErrorCode;
 import org.nembx.app.module.resume.entity.pojo.Resume;
 import org.nembx.app.module.resume.entity.pojo.ResumeAnalysis;
 import org.nembx.app.module.resume.entity.dto.ResumeSaveDTO;
@@ -20,9 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static org.nembx.app.common.exception.ErrorCode.NOT_FOUND;
-import static org.nembx.app.common.exception.ErrorCode.PARAM_ERROR;
 
 /**
  * @author Lian
@@ -54,7 +52,7 @@ public class ResumeManageService {
     @Transactional(rollbackFor = Exception.class)
     public void updateResumeStatus(Long resumeId, TaskStatus taskStatus) {
         Resume resume = resumeRepository.findById(resumeId).orElseThrow(
-                () -> new BusinessException(NOT_FOUND, "简历不存在"));
+                () -> new BusinessException(ErrorCode.NOT_FOUND, "简历不存在"));
         resume.setStatus(taskStatus);
         log.info("简历更新成功, id为: {}, 状态为: {}", resumeId, taskStatus);
     }
@@ -62,7 +60,7 @@ public class ResumeManageService {
     @Transactional(rollbackFor = Exception.class)
     public void updateResumeStorge(Long resumeId, String fileKey, String fileUrl) {
         Resume resume = resumeRepository.findById(resumeId).orElseThrow(
-                () -> new BusinessException(NOT_FOUND, "简历不存在"));
+                () -> new BusinessException(ErrorCode.NOT_FOUND, "简历不存在"));
         resume.setStorageKey(fileKey);
         resume.setStorageUrl(fileUrl);
         log.info("简历更新成功, id为: {}, 存储信息为: {}, {}", resumeId, fileKey, fileUrl);
@@ -81,10 +79,10 @@ public class ResumeManageService {
     public Resume getOneById(Long resumeId) {
         if (resumeId == null) {
             log.warn("获取简历失败, id为空");
-            throw new BusinessException(PARAM_ERROR, "id为空");
+            throw new BusinessException(ErrorCode.PARAM_ERROR, "id为空");
         }
         return resumeRepository.findById(resumeId).orElseThrow(
-                () -> new BusinessException(NOT_FOUND, "简历不存在"));
+                () -> new BusinessException(ErrorCode.NOT_FOUND, "简历不存在"));
     }
 
     public ResumeResponse getResumeById(Long resumeId) {
@@ -114,7 +112,7 @@ public class ResumeManageService {
     public ResumeAnalysis getOneDetail(Long resumeId) {
         if (resumeId == null) {
             log.warn("获取简历分析结果失败, id为空");
-            throw new BusinessException(PARAM_ERROR, "id为空");
+            throw new BusinessException(ErrorCode.PARAM_ERROR, "id为空");
         }
         return resumeAnalysisRepository.findFirstByResumeIdOrderByAnalyzedAtDesc(resumeId);
     }
@@ -124,7 +122,7 @@ public class ResumeManageService {
         ResumeAnalysis resumeAnalysis = getOneDetail(resumeId);
         if (resumeAnalysis == null) {
             log.warn("获取简历分析结果失败, id为: {}", resumeId);
-            throw new BusinessException(NOT_FOUND, "简历分析结果不存在");
+            throw new BusinessException(ErrorCode.NOT_FOUND, "简历分析结果不存在");
         }
         ResumeDetailResponse response = new ResumeDetailResponse(
                 resume.getId(),

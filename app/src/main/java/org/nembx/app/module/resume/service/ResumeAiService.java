@@ -7,6 +7,7 @@ import org.nembx.app.common.ai.AiClient;
 import org.nembx.app.common.ai.AiPromptManager;
 import org.nembx.app.common.enums.TaskStatus;
 import org.nembx.app.common.exception.BusinessException;
+import org.nembx.app.common.exception.ErrorCode;
 import org.nembx.app.common.utils.JsonUtils;
 import org.nembx.app.module.resume.entity.pojo.ResumeAnalysis;
 import org.nembx.app.module.resume.entity.dto.ResumeAnalysisResponseDTO;
@@ -20,8 +21,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
-import static org.nembx.app.common.exception.ErrorCode.AI_CALL_ERROR;
-import static org.nembx.app.common.exception.ErrorCode.BAD_REQUEST;
 
 /**
  * @author Lian
@@ -41,7 +40,7 @@ public class ResumeAiService {
         log.info("开始调用大模型分析简历, 简历ID: {}", resumeId);
         if (resumeText == null) {
             log.error("简历文本为空");
-            throw new BusinessException(BAD_REQUEST, "简历文本为空");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "简历文本为空");
         }
         resumeManageService.updateResumeStatus(resumeId, TaskStatus.PROCESSING);
 
@@ -68,7 +67,7 @@ public class ResumeAiService {
         } catch (Exception e) {
             log.error("调用 AI 接口分析简历失败, 简历ID: {}", resumeId, e);
             resumeManageService.updateResumeStatus(resumeId, TaskStatus.FAILED);
-            throw new BusinessException(AI_CALL_ERROR, "AI 分析失败");
+            throw new BusinessException(ErrorCode.AI_CALL_ERROR, "AI 分析失败");
         }
     }
 

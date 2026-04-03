@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.nembx.app.common.ai.AiClient;
 import org.nembx.app.common.ai.AiPromptManager;
 import org.nembx.app.common.exception.BusinessException;
+import org.nembx.app.common.exception.ErrorCode;
 import org.nembx.app.common.utils.JsonUtils;
 import org.nembx.app.module.resume.entity.pojo.JdMatch;
 import org.nembx.app.module.resume.entity.pojo.Resume;
@@ -19,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
-import static org.nembx.app.common.exception.ErrorCode.NOT_FOUND;
 
 /**
  * @author Lian
@@ -66,7 +66,7 @@ public class JdMatchService {
 
     public JdMatchResponse getJdMatchResult(Long resumeId) {
         JdMatch jdMatch = jdMatchRepository.findByResumeId(resumeId).orElseThrow(
-                () -> new BusinessException(NOT_FOUND, "未找到职位匹配结果")
+                () -> new BusinessException(ErrorCode.NOT_FOUND, "未找到职位匹配结果")
         );
         return new JdMatchResponse(
                 jdMatch.getJdContent(),
