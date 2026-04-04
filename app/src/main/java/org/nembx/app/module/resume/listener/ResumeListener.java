@@ -4,7 +4,7 @@ package org.nembx.app.module.resume.listener;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.nembx.app.module.resume.entity.dto.ResumeListenerDTO;
-import org.nembx.app.module.resume.service.ResumeAiService;
+import org.nembx.app.module.resume.service.resume.ResumeAiService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;

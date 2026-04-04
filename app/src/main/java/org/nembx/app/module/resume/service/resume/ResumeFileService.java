@@ -1,9 +1,10 @@
-package org.nembx.app.module.resume.service;
+package org.nembx.app.module.resume.service.resume;
 
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.nembx.app.common.service.RustFsService;
+import org.nembx.app.common.enums.FileType;
+import org.nembx.app.common.service.FileStorage;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,18 +16,17 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class ResumeFileService {
-
-    private final RustFsService rustFsService;
+    private final FileStorage fileStorage;
 
     public String uploadResume(MultipartFile file){
-        return rustFsService.uploadFile(file, "resume");
+        return fileStorage.upload(file, FileType.RESUME.getValue());
     }
 
     public void deleteResume(String fileKey){
-        rustFsService.deleteFile(fileKey);
+        fileStorage.delete(fileKey);
     }
 
     public String getResumeUrl(String fileKey){
-        return rustFsService.getFileUrl(fileKey);
+        return fileStorage.getUrl(fileKey);
     }
 }

@@ -1,4 +1,4 @@
-package org.nembx.app.module.resume.service;
+package org.nembx.app.module.resume.service.resume;
 
 
 import com.fasterxml.jackson.core.type.TypeReference;

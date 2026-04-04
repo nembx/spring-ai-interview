@@ -14,6 +14,7 @@ import org.nembx.app.module.resume.entity.pojo.Resume;
 import org.nembx.app.module.resume.entity.dto.JdMatchResponseDTO;
 import org.nembx.app.module.resume.entity.res.JdMatchResponse;
 import org.nembx.app.module.resume.repository.JdMatchRepository;
+import org.nembx.app.module.resume.service.resume.ResumeManageService;
 import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +37,8 @@ public class JdMatchService {
 
     private final AiPromptManager aiPromptManager;
 
-    private final BeanOutputConverter<JdMatchResponseDTO> outputConverter = new BeanOutputConverter<>(JdMatchResponseDTO.class);
+    private final BeanOutputConverter<JdMatchResponseDTO> outputConverter = new BeanOutputConverter<>(
+            JdMatchResponseDTO.class);
 
     @Transactional(rollbackFor = Exception.class)
     public void match(Long resumeId, String jdContent) {
@@ -51,8 +53,14 @@ public class JdMatchService {
         ));
 
         JdMatchResponseDTO jdMatchResponse = aiClient.call(systemPrompt, userPrompt, outputConverter);
-
+        saveJdMatch(resumeId, jdContent, jdMatchResponse);
         // 保存匹配结果
+
+        log.debug("JD匹配成功, 简历ID: {}, 职位描述: {}", resumeId, jdContent);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void saveJdMatch(Long resumeId, String jdContent,JdMatchResponseDTO jdMatchResponse){
         JdMatch jdMatch = new JdMatch();
         jdMatch.setResumeId(resumeId)
                 .setJdContent(jdContent)
@@ -61,7 +69,6 @@ public class JdMatchService {
                 .setSuggestionsJson(JsonUtils.toJson(jdMatchResponse.suggestions()))
                 .setMissingSkillsJson(JsonUtils.toJson(jdMatchResponse.missingSkills()));
         jdMatchRepository.save(jdMatch);
-        log.debug("JD匹配成功, 简历ID: {}, 职位描述: {}", resumeId, jdContent);
     }
 
     public JdMatchResponse getJdMatchResult(Long resumeId) {

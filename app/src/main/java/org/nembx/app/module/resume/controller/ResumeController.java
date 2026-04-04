@@ -12,7 +12,7 @@ import org.nembx.app.module.resume.entity.res.ExportParamResponse;
 import org.nembx.app.module.resume.entity.res.ResumeDetailResponse;
 import org.nembx.app.module.resume.entity.res.ResumeExportResponse;
 import org.nembx.app.module.resume.entity.res.ResumeResponse;
-import org.nembx.app.module.resume.service.*;
+import org.nembx.app.module.resume.service.resume.*;
 import org.nembx.app.module.task.entity.res.TaskSubmitResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
