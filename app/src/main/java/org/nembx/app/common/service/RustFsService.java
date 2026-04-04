@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.nembx.app.common.exception.BusinessException;
+import org.nembx.app.common.exception.ErrorCode;
 import org.nembx.app.common.properties.RustFsProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,8 +18,6 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.nembx.app.common.exception.ErrorCode.*;
-
 /**
  * @author Lian
  */
@@ -26,7 +25,7 @@ import static org.nembx.app.common.exception.ErrorCode.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RustFsService {
+public class RustFsService implements FileStorage {
     private final S3Client s3Client;
 
     private final RustFsProperties rustFsProperties;
@@ -37,7 +36,7 @@ public class RustFsService {
         ensureBucketExists();
     }
 
-    public boolean fileNotExist(String fileKey) {
+    public boolean notExists(String fileKey) {
         try {
             HeadObjectRequest headRequest = HeadObjectRequest.builder()
                     .bucket(rustFsProperties.getBucket())
@@ -53,17 +52,18 @@ public class RustFsService {
         }
     }
 
-    public String uploadFile(MultipartFile file, String filePrefix) {
+    @Override
+    public String upload(MultipartFile file, String namespace) {
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || originalFilename.isBlank()) {
-            throw new BusinessException(PARAM_ERROR, "文件名不能为空");
+            throw new BusinessException(ErrorCode.PARAM_ERROR, "文件名不能为空");
         }
         // 防止路径遍历：只取文件名部分，去除目录路径
         originalFilename = originalFilename.replace("\\", "/");
         if (originalFilename.contains("/")) {
             originalFilename = originalFilename.substring(originalFilename.lastIndexOf("/") + 1);
         }
-        String key = filePrefix + "/" + originalFilename;
+        String key = namespace + "/" + originalFilename;
         // 创建存储桶
         try (InputStream inputStream = file.getInputStream()) {
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -77,19 +77,20 @@ public class RustFsService {
             return key;
         } catch (IOException e) {
             log.error("文件读取失败, 原因是: {}", e.getMessage());
-            throw new BusinessException(INTERNAL_ERROR, "上传失败");
+            throw new BusinessException(ErrorCode.INTERNAL_ERROR, "上传失败");
         } catch (S3Exception e) {
             log.error("上传文件失败, 原因为: {}", e.getMessage());
-            throw new BusinessException(UPLOAD_FAIL, "上传失败");
+            throw new BusinessException(ErrorCode.UPLOAD_FAIL, "上传失败");
         }
     }
 
-    public void deleteFile(String key) {
+    @Override
+    public void delete(String key) {
         if (key == null) {
             log.debug("删除文件失败, 文件键为空");
             return;
         }
-        if (fileNotExist(key)) {
+        if (notExists(key)) {
             log.warn("删除文件失败, 文件不存在");
             return;
         }
@@ -98,13 +99,14 @@ public class RustFsService {
             log.info("删除文件成功, 文件名为：{}", key);
         } catch (S3Exception e) {
             log.error("删除文件失败, 原因为: {}", e.getMessage());
-            throw new BusinessException(DELETE_FAIL, "删除失败");
+            throw new BusinessException(ErrorCode.DELETE_FAIL, "删除失败");
         }
     }
 
-    public InputStream downloadFileStream(String key) {
-        if (key == null || fileNotExist(key)) {
-            throw new BusinessException(NOT_FOUND, "文件不存在");
+    @Override
+    public InputStream download(String key) {
+        if (key == null || notExists(key)) {
+            throw new BusinessException(ErrorCode.NOT_FOUND, "文件不存在");
         }
         try {
             // getObject 返回的是一个流，不会一次性加载到内存
@@ -112,11 +114,11 @@ public class RustFsService {
                     builder.bucket(rustFsProperties.getBucket()).key(key));
         } catch (S3Exception e) {
             log.error("获取文件流失败: {}", e.getMessage());
-            throw new BusinessException(DOWNLOAD_FAIL, "文件提取失败");
+            throw new BusinessException(ErrorCode.DOWNLOAD_FAIL, "文件提取失败");
         }
     }
 
-    public void ensureBucketExists() {
+    private void ensureBucketExists() {
         try {
             s3Client.headBucket(builder -> builder.bucket(rustFsProperties.getBucket()));
             log.info("存储桶已存在: {}", rustFsProperties.getBucket());
@@ -126,14 +128,15 @@ public class RustFsService {
                 s3Client.createBucket(builder -> builder.bucket(rustFsProperties.getBucket()));
             } else {
                 log.error("创建存储桶失败: {}", e.getMessage());
-                throw new BusinessException(INTERNAL_ERROR, "存储服务不可用: " + e.getMessage());
+                throw new BusinessException(ErrorCode.INTERNAL_ERROR, "存储服务不可用: " + e.getMessage());
             }
         }
     }
 
-    public String getFileUrl(String key) {
-        if (key == null || fileNotExist(key)) {
-            throw new BusinessException(NOT_FOUND, "文件不存在");
+    @Override
+    public String getUrl(String key) {
+        if (key == null || notExists(key)) {
+            throw new BusinessException(ErrorCode.NOT_FOUND, "文件不存在");
         }
         return s3Client.utilities().getUrl(builder ->
                 builder.bucket(rustFsProperties.getBucket()).key(key)).toString();
