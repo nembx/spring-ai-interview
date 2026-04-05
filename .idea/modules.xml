@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/spring-ai-interview.iml" filepath="$PROJECT_DIR$/.idea/spring-ai-interview.iml" />
     </modules>
   </component>
 </project>
