@@ -5,6 +5,8 @@ import org.nembx.app.common.enums.SessionStatus;
 import org.nembx.app.module.knowledge.entity.pojo.RagSession;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -25,4 +27,9 @@ public interface RagSessionRepository extends JpaRepository<RagSession, Long> {
 
     @EntityGraph(attributePaths = "knowledges")
     Optional<RagSession> findWithKnowledgesByIdAndStatus(Long id, SessionStatus status);
+
+    @Modifying
+    @SuppressWarnings("SqlResolve")
+    @Query(value = "DELETE FROM rag_session_knowledge WHERE knowledge_id = :knowledgeId", nativeQuery = true)
+    void deleteKnowledgeRelations(Long knowledgeId);
 }
