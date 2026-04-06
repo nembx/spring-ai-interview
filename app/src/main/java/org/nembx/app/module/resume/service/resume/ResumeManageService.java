@@ -1,4 +1,4 @@
-package org.nembx.app.module.resume.service;
+package org.nembx.app.module.resume.service.resume;
 
 
 import cn.hutool.core.bean.BeanUtil;
@@ -17,6 +17,7 @@ import org.nembx.app.module.resume.entity.res.ResumeResponse;
 import org.nembx.app.module.resume.repository.ResumeAnalysisRepository;
 import org.nembx.app.module.resume.repository.ResumeRepository;
 import org.nembx.app.module.task.entity.res.TaskStatusResponse;
+import org.nembx.app.module.task.service.TaskProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +30,7 @@ import java.util.Optional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ResumeManageService {
+public class ResumeManageService implements TaskProvider {
     private final ResumeRepository resumeRepository;
 
     private final ResumeAnalysisRepository resumeAnalysisRepository;
@@ -98,6 +99,12 @@ public class ResumeManageService {
         );
     }
 
+    @Override
+    public TaskResourceType supportType() {
+        return TaskResourceType.RESUME;
+    }
+
+    @Override
     public TaskStatusResponse getTaskStatus(Long resumeId) {
         Resume resume = getOneById(resumeId);
         return new TaskStatusResponse(

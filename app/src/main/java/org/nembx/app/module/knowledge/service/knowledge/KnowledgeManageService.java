@@ -15,6 +15,7 @@ import org.nembx.app.module.knowledge.entity.dto.KnowledgeSaveDTO;
 import org.nembx.app.module.knowledge.entity.res.KnowledgeResponse;
 import org.nembx.app.module.knowledge.repository.KnowledgeRepository;
 import org.nembx.app.module.task.entity.res.TaskStatusResponse;
+import org.nembx.app.module.task.service.TaskProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +30,7 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class KnowledgeManageService {
+public class KnowledgeManageService implements TaskProvider {
     private final KnowledgeRepository knowledgeRepository;
 
     public KnowledgeResponse getKnowledgeById(Long knowledgeId) {
@@ -44,6 +45,12 @@ public class KnowledgeManageService {
         );
     }
 
+    @Override
+    public TaskResourceType supportType() {
+        return TaskResourceType.KNOWLEDGE;
+    }
+
+    @Override
     public TaskStatusResponse getTaskStatus(Long knowledgeId) {
         Knowledge knowledge = getOneById(knowledgeId);
         return new TaskStatusResponse(
