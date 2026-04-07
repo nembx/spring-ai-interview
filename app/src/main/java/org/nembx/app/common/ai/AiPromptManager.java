@@ -1,6 +1,7 @@
 package org.nembx.app.common.ai;
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.core.io.ResourceLoader;
@@ -12,23 +13,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 统一 Prompt 模板管理器，负责加载、缓存和渲染 Prompt 模板。
- * 模板文件存放在 classpath:prompt/{name}.st
- *
  * @author Lian
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class AiPromptManager {
     private static final String PROMPT_PREFIX = "classpath:prompt/";
     private static final String PROMPT_SUFFIX = ".st";
 
     private final ResourceLoader resourceLoader;
     private final ConcurrentHashMap<String, PromptTemplate> cache = new ConcurrentHashMap<>();
-
-    public AiPromptManager(ResourceLoader resourceLoader) {
-        this.resourceLoader = resourceLoader;
-    }
 
     /**
      * 获取模板（带缓存）

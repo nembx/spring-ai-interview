@@ -1,6 +1,5 @@
 package org.nembx.app.common.ai;
 
-
 import lombok.extern.slf4j.Slf4j;
 import org.nembx.app.common.exception.BusinessException;
 import org.springframework.ai.chat.client.ChatClient;
@@ -12,9 +11,6 @@ import reactor.core.publisher.Flux;
 import static org.nembx.app.common.exception.ErrorCode.AI_CALL_ERROR;
 
 /**
- * 统一 AI 调用客户端，封装 ChatClient 的同步/流式/结构化调用，
- * 提供统一的日志记录和异常处理。
- *
  * @author Lian
  */
 @Service
@@ -33,9 +29,7 @@ public class AiClient {
     public String call(String systemPrompt, String userPrompt) {
         long start = System.currentTimeMillis();
         try {
-            String result = chatClient.prompt()
-                    .system(systemPrompt)
-                    .user(userPrompt)
+            String result = prompt(systemPrompt, userPrompt)
                     .call()
                     .content();
             log.info("[AI调用完成] 耗时: {}ms", System.currentTimeMillis() - start);
@@ -52,9 +46,7 @@ public class AiClient {
     public <T> T call(String systemPrompt, String userPrompt, StructuredOutputConverter<T> converter) {
         long start = System.currentTimeMillis();
         try {
-            T result = chatClient.prompt()
-                    .system(systemPrompt)
-                    .user(userPrompt)
+            T result = prompt(systemPrompt, userPrompt)
                     .call()
                     .entity(converter);
             log.info("[AI结构化调用完成] 耗时: {}ms", System.currentTimeMillis() - start);
@@ -70,14 +62,21 @@ public class AiClient {
      */
     public Flux<String> stream(String systemPrompt, String userPrompt) {
         long start = System.currentTimeMillis();
-        return chatClient.prompt()
-                .system(systemPrompt)
-                .user(userPrompt)
+        return prompt(systemPrompt, userPrompt)
                 .stream()
                 .content()
                 .doOnComplete(() ->
                         log.info("[AI流式调用完成] 耗时: {}ms", System.currentTimeMillis() - start))
                 .doOnError(e ->
                         log.error("[AI流式调用失败] 耗时: {}ms, 错误: {}", System.currentTimeMillis() - start, e.getMessage()));
+    }
+
+    /**
+     * ai client配置拼接
+     */
+    private ChatClient.ChatClientRequestSpec prompt(String systemPrompt, String userPrompt) {
+        return chatClient.prompt()
+                .system(systemPrompt)
+                .user(userPrompt);
     }
 }

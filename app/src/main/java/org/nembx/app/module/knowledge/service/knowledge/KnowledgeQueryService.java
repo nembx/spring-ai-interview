@@ -9,8 +9,8 @@ import org.nembx.app.common.ai.AiPromptManager;
 import org.nembx.app.common.enums.MessageType;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.exception.ErrorCode;
-import org.nembx.app.module.knowledge.entity.pojo.RagMessage;
 import org.nembx.app.module.knowledge.entity.dto.RetrievalContext;
+import org.nembx.app.module.knowledge.entity.pojo.RagMessage;
 import org.nembx.app.module.knowledge.properties.VectorProperties;
 import org.springframework.ai.document.Document;
 import org.springframework.stereotype.Service;
@@ -19,6 +19,7 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author Lian
@@ -31,7 +32,9 @@ public class KnowledgeQueryService {
     private static final String NO_RESULT_RESPONSE = "抱歉，在选定的知识库中未检索到相关信息。请换一个更具体的关键词或补充上下文后再试。";
 
     private final AiClient aiClient;
+
     private final AiPromptManager aiPromptManager;
+
     private final KnowledgeVectorService knowledgeVectorService;
 
     private final VectorProperties vectorProperties;
@@ -82,15 +85,9 @@ public class KnowledgeQueryService {
 
         String historyContext = "";
         if (CollectionUtil.isNotEmpty(ragMessages)) {
-            StringBuilder historyBuilder = new StringBuilder();
-            for (RagMessage msg : ragMessages) {
-                String roleName = msg.getType() == MessageType.USER ? "用户" : "助手";
-                historyBuilder.append(roleName)
-                        .append(": ")
-                        .append(msg.getContent())
-                        .append("\n");
-            }
-            historyContext = historyBuilder.toString();
+            historyContext = ragMessages.stream()
+                    .map(msg -> (msg.getType() == MessageType.USER ? "用户: " : "助手: ") + msg.getContent())
+                    .collect(Collectors.joining("\n"));
             log.debug("组装的历史记录:\n{}", historyContext);
         }
 
@@ -103,9 +100,39 @@ public class KnowledgeQueryService {
             return null;
         }
 
-        String context = documents.stream()
-                .map(Document::getText)
-                .collect(Collectors.joining("\n\n--\n\n"));
+        // 检索结果去重
+        List<Document> uniqueDocuments = documents.stream()
+                .filter(doc -> doc.getText() != null)
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toMap(
+                                doc -> doc.getMetadata().getOrDefault("chunk_hash",
+                                        doc.getText() != null ? doc.getText().trim() : null).toString(),
+                                doc -> doc,
+                                (left, right) -> left
+                        ),
+                        map -> map.values().stream().toList()
+                ));
+
+        // 组成分块内容
+        String context = IntStream.range(0, uniqueDocuments.size())
+                .mapToObj(i -> {
+                    Document doc = uniqueDocuments.get(i);
+                    return """
+                            [片段 %d]
+                            来源文件: %s
+                            知识库ID: %s
+                            分块序号: %s
+                            内容:
+                            %s
+                            """.formatted(
+                            i + 1,
+                            doc.getMetadata().getOrDefault("file_name", "未知文件"),
+                            doc.getMetadata().getOrDefault("kb_id", "未知"),
+                            doc.getMetadata().getOrDefault("chunk_index", "未知"),
+                            doc.getText() != null ? doc.getText().trim() : null
+                    );
+                })
+                .collect(Collectors.joining("\n\n---\n\n"));
         log.info("查询知识库成功, 结果数量: {}", documents.size());
         log.debug("检索上下文: {}", context);
 
