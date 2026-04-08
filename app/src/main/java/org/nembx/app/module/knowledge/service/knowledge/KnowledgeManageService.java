@@ -5,23 +5,19 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.nembx.app.common.enums.TaskResourceType;
 import org.nembx.app.common.enums.TaskStatus;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.exception.ErrorCode;
-import org.nembx.app.module.knowledge.entity.pojo.Knowledge;
 import org.nembx.app.module.knowledge.entity.dto.KnowledgeListDTO;
 import org.nembx.app.module.knowledge.entity.dto.KnowledgeSaveDTO;
+import org.nembx.app.module.knowledge.entity.pojo.Knowledge;
 import org.nembx.app.module.knowledge.entity.res.KnowledgeResponse;
 import org.nembx.app.module.knowledge.repository.KnowledgeRepository;
-import org.nembx.app.module.task.entity.res.TaskStatusResponse;
-import org.nembx.app.module.task.service.TaskProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 
 
 /**
@@ -30,7 +26,7 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class KnowledgeManageService implements TaskProvider {
+public class KnowledgeManageService {
     private final KnowledgeRepository knowledgeRepository;
 
     public KnowledgeResponse getKnowledgeById(Long knowledgeId) {
@@ -41,23 +37,6 @@ public class KnowledgeManageService implements TaskProvider {
                 knowledge.getCategory(),
                 knowledge.getFileSize(),
                 knowledge.getFileType(),
-                knowledge.getUploadTime()
-        );
-    }
-
-    @Override
-    public TaskResourceType supportType() {
-        return TaskResourceType.KNOWLEDGE;
-    }
-
-    @Override
-    public TaskStatusResponse getTaskStatus(Long knowledgeId) {
-        Knowledge knowledge = getOneById(knowledgeId);
-        return new TaskStatusResponse(
-                knowledge.getId(),
-                TaskResourceType.KNOWLEDGE.getValue(),
-                knowledge.getFileName(),
-                knowledge.getTaskStatus(),
                 knowledge.getUploadTime()
         );
     }

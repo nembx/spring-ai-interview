@@ -4,20 +4,17 @@ package org.nembx.app.module.resume.service.resume;
 import cn.hutool.core.bean.BeanUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.nembx.app.common.enums.TaskResourceType;
 import org.nembx.app.common.enums.TaskStatus;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.exception.ErrorCode;
+import org.nembx.app.module.resume.entity.dto.ResumeSaveDTO;
 import org.nembx.app.module.resume.entity.pojo.Resume;
 import org.nembx.app.module.resume.entity.pojo.ResumeAnalysis;
-import org.nembx.app.module.resume.entity.dto.ResumeSaveDTO;
 import org.nembx.app.module.resume.entity.res.ExportParamResponse;
 import org.nembx.app.module.resume.entity.res.ResumeDetailResponse;
 import org.nembx.app.module.resume.entity.res.ResumeResponse;
 import org.nembx.app.module.resume.repository.ResumeAnalysisRepository;
 import org.nembx.app.module.resume.repository.ResumeRepository;
-import org.nembx.app.module.task.entity.res.TaskStatusResponse;
-import org.nembx.app.module.task.service.TaskProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +27,7 @@ import java.util.Optional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ResumeManageService implements TaskProvider {
+public class ResumeManageService {
     private final ResumeRepository resumeRepository;
 
     private final ResumeAnalysisRepository resumeAnalysisRepository;
@@ -95,23 +92,6 @@ public class ResumeManageService implements TaskProvider {
                 resume.getFileSize(),
                 resume.getContentType(),
                 resume.getContent(),
-                resume.getUploadTime()
-        );
-    }
-
-    @Override
-    public TaskResourceType supportType() {
-        return TaskResourceType.RESUME;
-    }
-
-    @Override
-    public TaskStatusResponse getTaskStatus(Long resumeId) {
-        Resume resume = getOneById(resumeId);
-        return new TaskStatusResponse(
-                resume.getId(),
-                TaskResourceType.RESUME.getValue(),
-                resume.getFileName(),
-                resume.getStatus(),
                 resume.getUploadTime()
         );
     }
