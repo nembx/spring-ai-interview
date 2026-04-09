@@ -9,7 +9,6 @@ import org.nembx.app.common.utils.FileHashUtils;
 import org.nembx.app.module.knowledge.repository.VectorRepository;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.transformer.splitter.TextSplitter;
-import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class KnowledgeVectorService {
     private final VectorStore vectorStore;
 
-    private final TextSplitter textSplitter = new TokenTextSplitter();
+    private final TextSplitter textSplitter;
 
     private final VectorRepository vectorRepository;
 
