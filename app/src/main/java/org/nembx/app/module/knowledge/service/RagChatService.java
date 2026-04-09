@@ -8,10 +8,10 @@ import org.nembx.app.common.enums.MessageType;
 import org.nembx.app.common.enums.SessionStatus;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.exception.ErrorCode;
+import org.nembx.app.module.knowledge.entity.dto.RagMessageDTO;
 import org.nembx.app.module.knowledge.entity.pojo.Knowledge;
 import org.nembx.app.module.knowledge.entity.pojo.RagMessage;
 import org.nembx.app.module.knowledge.entity.pojo.RagSession;
-import org.nembx.app.module.knowledge.entity.dto.RagMessageDTO;
 import org.nembx.app.module.knowledge.entity.req.CreateSessionRequest;
 import org.nembx.app.module.knowledge.entity.res.RagSessionDetailResponse;
 import org.nembx.app.module.knowledge.entity.res.RagSessionResponse;
@@ -38,7 +38,8 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class RagChatService {
-    private record PreparedChatContext(Long userMessageId, Long assistantMessageId) {}
+    private record PreparedChatContext(Long userMessageId, Long assistantMessageId) {
+    }
 
     private final RagSessionRepository ragSessionRepository;
 
