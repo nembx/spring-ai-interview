@@ -62,7 +62,13 @@ logging:
     io.netty.resolver.dns.DnsServerAddressStreamProviders: OFF
 
 vector:
-  topK: 5
+  topK: 12
   minScore: 0.05
+
+rerank:
+  baseUrl: ${AI_URL}
+  apiKey: ${AI_KEY}
+  model: ${RERANK_MODEL}
+  finalTopK: 4
 server:
   port: 8080
