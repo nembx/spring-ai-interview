@@ -23,8 +23,8 @@ public class TaskQueryService {
     private final Map<TaskResourceType, TaskProvider> taskMap = new EnumMap<>(TaskResourceType.class);
 
     @PostConstruct
-    public void init(){
-        for (TaskProvider provider : providers){
+    private void init() {
+        for (TaskProvider provider : providers) {
             taskMap.put(provider.supportType(), provider);
         }
     }
