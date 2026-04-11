@@ -12,7 +12,8 @@ import org.nembx.app.module.knowledge.entity.req.CreateSessionRequest;
 import org.nembx.app.module.knowledge.entity.req.RagSessionRequest;
 import org.nembx.app.module.knowledge.entity.res.RagSessionDetailResponse;
 import org.nembx.app.module.knowledge.entity.res.RagSessionResponse;
-import org.nembx.app.module.knowledge.service.RagChatService;
+import org.nembx.app.module.knowledge.service.rag.RagChatService;
+import org.nembx.app.module.knowledge.service.rag.RagManageService;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -31,38 +32,39 @@ import java.util.List;
 public class RagController {
     private final RagChatService ragChatService;
 
+    private final RagManageService ragManageService;
+
     @Operation(summary = "创建rag会话")
     @PostMapping("/create")
     public Result<RagSessionResponse> createSession(@Valid @RequestBody CreateSessionRequest request) {
-        return Result.success(ragChatService.createSession(request));
+        return Result.success(ragManageService.createSession(request));
     }
 
     @Operation(summary = "获取所有rag会话")
     @GetMapping("/sessions")
     public Result<List<RagSessionResponse>> getSessionsByStatus(@RequestParam SessionStatus status) {
-        return Result.success(ragChatService.getSessionsByStatus(status));
+        return Result.success(ragManageService.getSessionsByStatus(status));
     }
 
     @Operation(summary = "根据Id删除rag会话")
     @DeleteMapping("/delete/{sessionId}")
     public Result<Void> deleteSession(@PathVariable Long sessionId) {
-        ragChatService.deleteSession(sessionId);
+        ragManageService.deleteSession(sessionId);
         return Result.success();
     }
 
     @Operation(summary = "根据Id获取rag会话详情")
     @GetMapping("/detail/{sessionId}")
     public Result<RagSessionDetailResponse> getSessionDetail(@PathVariable Long sessionId) {
-        return Result.success(ragChatService.getSessionDetail(sessionId));
+        return Result.success(ragManageService.getSessionDetail(sessionId));
     }
 
     @Operation(summary = "更新rag会话知识")
     @PutMapping("/updateSessionKnowledge/{sessionId}")
     public Result<Void> updateKnowledge(@PathVariable Long sessionId, @RequestBody List<Long> knowledgeIds) {
-        ragChatService.updateSessionKnowledge(sessionId, knowledgeIds);
+        ragManageService.updateSessionKnowledge(sessionId, knowledgeIds);
         return Result.success();
     }
-
 
     @Operation(summary = "进行rag对话")
     @PostMapping("/chat")
@@ -73,7 +75,7 @@ public class RagController {
     @Operation(summary = "更新rag会话标题")
     @PutMapping("/updateTitle/{sessionId}")
     public Result<Void> updateTitle(@PathVariable Long sessionId, @RequestBody String title) {
-        ragChatService.updateSessionTitle(sessionId, title);
+        ragManageService.updateSessionTitle(sessionId, title);
         return Result.success();
     }
 
@@ -81,7 +83,7 @@ public class RagController {
     @PutMapping("/updateStatus/{sessionId}")
     public Result<Void> updateSessionStatus(@PathVariable Long sessionId,
                                             @RequestParam SessionStatus status) {
-        ragChatService.updateSessionStatus(sessionId, status);
+        ragManageService.updateSessionStatus(sessionId, status);
         return Result.success();
     }
 }
