@@ -3,15 +3,17 @@ package org.nembx.app.module.knowledge.service.knowledge;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.nembx.app.common.enums.FileType;
 import org.nembx.app.common.enums.TaskResourceType;
 import org.nembx.app.common.enums.TaskStatus;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.exception.ErrorCode;
 import org.nembx.app.common.service.DocumentParseService;
+import org.nembx.app.common.service.FileCheckService;
 import org.nembx.app.common.utils.FileHashUtils;
-import org.nembx.app.module.knowledge.entity.pojo.Knowledge;
 import org.nembx.app.module.knowledge.entity.dto.KnowledgeListenerDTO;
 import org.nembx.app.module.knowledge.entity.dto.KnowledgeSaveDTO;
+import org.nembx.app.module.knowledge.entity.pojo.Knowledge;
 import org.nembx.app.module.task.entity.res.TaskSubmitResponse;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -37,12 +39,20 @@ public class KnowledgeUploadService {
 
     private final ApplicationEventPublisher eventPublisher;
 
+    private final FileCheckService fileCheckService;
 
     @Transactional(rollbackFor = Exception.class)
     public TaskSubmitResponse uploadAndParse(MultipartFile file, String category) {
         String contentType = file.getContentType();
         Long size = file.getSize();
         String originalFilename = file.getOriginalFilename();
+
+        boolean isValid = fileCheckService.isRealValid(file, FileType.KNOWLEDGE);
+        if (!isValid) {
+            String fileExtension = fileCheckService.getFileExtension(originalFilename);
+            log.error("不支持格式: {}, 请上传正确的简历文件", fileExtension);
+            throw new BusinessException(ErrorCode.UPLOAD_FAIL, "请上传正确的简历文件");
+        }
 
         String content = documentParseService.parseContent(file);
         log.info("解析成功, 文件名为: {}, 内容长度: {} 字符", originalFilename, content.length());

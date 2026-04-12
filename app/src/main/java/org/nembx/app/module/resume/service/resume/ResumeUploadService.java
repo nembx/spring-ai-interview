@@ -3,15 +3,17 @@ package org.nembx.app.module.resume.service.resume;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.nembx.app.common.enums.FileType;
 import org.nembx.app.common.enums.TaskResourceType;
 import org.nembx.app.common.enums.TaskStatus;
 import org.nembx.app.common.exception.BusinessException;
+import org.nembx.app.common.exception.ErrorCode;
 import org.nembx.app.common.service.DocumentParseService;
 import org.nembx.app.common.service.FileCheckService;
 import org.nembx.app.common.utils.FileHashUtils;
-import org.nembx.app.module.resume.entity.pojo.Resume;
 import org.nembx.app.module.resume.entity.dto.ResumeListenerDTO;
 import org.nembx.app.module.resume.entity.dto.ResumeSaveDTO;
+import org.nembx.app.module.resume.entity.pojo.Resume;
 import org.nembx.app.module.task.entity.res.TaskSubmitResponse;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -19,9 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
-
-import static org.nembx.app.common.exception.ErrorCode.BAD_REQUEST;
-import static org.nembx.app.common.exception.ErrorCode.UPLOAD_FAIL;
 
 /**
  * @author Lian
@@ -46,26 +45,25 @@ public class ResumeUploadService {
         Long size = file.getSize();
         String originalFilename = file.getOriginalFilename();
         // 检查文件
-        boolean valid = fileCheckService.isRealValidResume(file);
+        boolean valid = fileCheckService.isRealValid(file, FileType.RESUME);
         if (!valid) {
             String fileExtension = fileCheckService.getFileExtension(originalFilename);
             log.error("不支持格式: {}, 请上传正确的简历文件", fileExtension);
-            throw new BusinessException(UPLOAD_FAIL, "请上传正确的简历文件");
+            throw new BusinessException(ErrorCode.UPLOAD_FAIL, "请上传正确的简历文件");
         }
         log.debug("收到简历, 文件名为: {}, 大小为: {}", originalFilename, size);
-
 
         String fileHash = FileHashUtils.calculateHash(file);
         Optional<Resume> existingResume = resumeManageService.checkIfDuplicate(fileHash);
         if (existingResume.isPresent()) {
             log.warn("检测到重复简历, resumeId={}", existingResume.get().getId());
-            throw new BusinessException(UPLOAD_FAIL, "该简历已上传过，请勿重复上传");
+            throw new BusinessException(ErrorCode.UPLOAD_FAIL, "该简历已上传过，请勿重复上传");
         }
 
         String content = documentParseService.parseContent(file);
         if (content == null || content.isEmpty()) {
             log.warn("简历解析失败, 文件名为: {}", originalFilename);
-            throw new BusinessException(BAD_REQUEST, "简历解析失败");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "简历解析失败");
         }
         log.debug("简历解析成功, 文件名为: {}, 内容长度: {} 字符", originalFilename, content.length());
 
