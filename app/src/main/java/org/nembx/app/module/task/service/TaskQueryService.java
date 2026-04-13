@@ -4,6 +4,8 @@ package org.nembx.app.module.task.service;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.nembx.app.common.enums.TaskResourceType;
+import org.nembx.app.common.exception.BusinessException;
+import org.nembx.app.common.exception.ErrorCode;
 import org.nembx.app.module.task.entity.res.TaskStatusResponse;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +33,9 @@ public class TaskQueryService {
 
     public TaskStatusResponse getTaskStatus(String resourceType, Long resourceId) {
         TaskResourceType type = TaskResourceType.fromValue(resourceType);
-        return taskMap.get(type).getTaskStatus(resourceId);
+        TaskStatusResponse taskStatus = taskMap.get(type).getTaskStatus(resourceId);
+        if (taskStatus == null)
+            throw new BusinessException(ErrorCode.NOT_FOUND, "不存在该任务状态");
+        return taskStatus;
     }
 }
