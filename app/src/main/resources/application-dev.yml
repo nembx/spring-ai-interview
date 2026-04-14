@@ -58,6 +58,7 @@ springdoc:
 
 logging:
   level:
+    org.nembx.app: DEBUG
     # mac 需要将该类的日志级别设置为 OFF 或 FATAL
     io.netty.resolver.dns.DnsServerAddressStreamProviders: OFF
 
@@ -66,8 +67,8 @@ vector:
   minScore: 0.05
 
 rerank:
-  baseUrl: ${AI_URL}
-  apiKey: ${AI_KEY}
+  baseUrl: ${RERANK_URL}
+  apiKey: ${RERANK_KEY}
   model: ${RERANK_MODEL}
   finalTopK: 4
 server:

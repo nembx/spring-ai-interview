@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 import org.nembx.app.common.enums.ContentType;
 import org.nembx.app.common.enums.FileType;
+import org.nembx.app.common.enums.TextExtensions;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,13 +31,17 @@ public class FileCheckService {
             ContentType.MARKDOWN.getValue(),
             ContentType.TXT.getValue()
     );
+    private static final Set<String> ALLOWED_PLAIN_TEXT_EXTENSIONS = Set.of(
+            TextExtensions.MD.getValue(),
+            TextExtensions.TXT.getValue()
+    );
 
     private final Map<FileType, Set<String>> RULES = new EnumMap<>(FileType.class);
 
     private final Tika tika = new Tika();
 
     @PostConstruct
-    private void init() {
+    public void init() {
         RULES.put(FileType.RESUME, ALLOWED_CONTENT_TYPES);
         RULES.put(FileType.KNOWLEDGE, ALLOWED_CONTENT_TYPES);
     }
@@ -63,7 +68,7 @@ public class FileCheckService {
             // 如果 Tika 探测出是纯文本 (比如 md 或 txt 会被探测为 text/plain)
             if (ContentType.TXT.getValue().equals(realContentType)) {
                 String extension = getFileExtension(filename);
-                if (!ALLOWED_CONTENT_TYPES.contains(extension)) {
+                if (!ALLOWED_PLAIN_TEXT_EXTENSIONS.contains(extension)) {
                     log.warn("危险的纯文本后缀被拦截. 文件名: {}, 探测类型: {}", filename, realContentType);
                     return false; // 拦截 resume.bat, script.sh 等伪装者
                 }
