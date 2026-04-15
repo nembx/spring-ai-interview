@@ -50,8 +50,8 @@ public class KnowledgeUploadService {
         boolean isValid = fileCheckService.isRealValid(file, FileType.KNOWLEDGE);
         if (!isValid) {
             String fileExtension = fileCheckService.getFileExtension(originalFilename);
-            log.error("不支持格式: {}, 请上传正确的简历文件", fileExtension);
-            throw new BusinessException(ErrorCode.UPLOAD_FAIL, "请上传正确的简历文件");
+            log.error("不支持格式: {}, 请上传正确的知识库文件", fileExtension);
+            throw new BusinessException(ErrorCode.UPLOAD_FAIL, "请上传正确的知识库文件");
         }
 
         String content = documentParseService.parseContent(file);

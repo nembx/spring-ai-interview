@@ -68,6 +68,7 @@ public class KnowledgeRetrieveService {
                 ));
         // 召回后rerank重排序
         List<Document> rerankedDocuments = knowledgeRerankService.rerank(question, uniqueDocuments);
+        log.info("重排序成功, 问题: {}", question);
         List<Document> finalDocuments = CollectionUtil.isEmpty(rerankedDocuments) ? uniqueDocuments : rerankedDocuments;
 
         String context = IntStream.range(0, finalDocuments.size())
