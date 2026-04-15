@@ -9,9 +9,9 @@ import org.nembx.app.common.ai.AiPromptManager;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.exception.ErrorCode;
 import org.nembx.app.common.utils.JsonUtils;
+import org.nembx.app.module.resume.entity.dto.JdMatchResponseDTO;
 import org.nembx.app.module.resume.entity.pojo.JdMatch;
 import org.nembx.app.module.resume.entity.pojo.Resume;
-import org.nembx.app.module.resume.entity.dto.JdMatchResponseDTO;
 import org.nembx.app.module.resume.entity.res.JdMatchResponse;
 import org.nembx.app.module.resume.repository.JdMatchRepository;
 import org.nembx.app.module.resume.service.resume.ResumeManageService;
@@ -53,14 +53,14 @@ public class JdMatchService {
         ));
 
         JdMatchResponseDTO jdMatchResponse = aiClient.call(systemPrompt, userPrompt, outputConverter);
-        saveJdMatch(resumeId, jdContent, jdMatchResponse);
         // 保存匹配结果
+        saveJdMatch(resumeId, jdContent, jdMatchResponse);
 
         log.debug("JD匹配成功, 简历ID: {}, 职位描述: {}", resumeId, jdContent);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void saveJdMatch(Long resumeId, String jdContent,JdMatchResponseDTO jdMatchResponse){
+    public void saveJdMatch(Long resumeId, String jdContent, JdMatchResponseDTO jdMatchResponse) {
         JdMatch jdMatch = new JdMatch();
         jdMatch.setResumeId(resumeId)
                 .setJdContent(jdContent)
@@ -79,8 +79,10 @@ public class JdMatchService {
                 jdMatch.getJdContent(),
                 jdMatch.getOverallScore(),
                 jdMatch.getMatchScore(),
-                JsonUtils.fromJson(jdMatch.getSuggestionsJson(), new TypeReference<>(){}),
-                JsonUtils.fromJson(jdMatch.getMissingSkillsJson(), new TypeReference<>(){})
+                JsonUtils.fromJson(jdMatch.getSuggestionsJson(), new TypeReference<>() {
+                }),
+                JsonUtils.fromJson(jdMatch.getMissingSkillsJson(), new TypeReference<>() {
+                })
         );
     }
 }

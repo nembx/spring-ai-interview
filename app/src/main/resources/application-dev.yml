@@ -25,6 +25,17 @@ spring:
       embedding:
         options:
           model: ${EMBEDDING_MODEL}
+      # audio模型配置
+      audio:
+        speech:
+          options:
+            model: ${AUDIO_MODEL}
+            voice: alloy
+            speed: 1.0
+            response-format: mp3
+        transcription:
+          options:
+            model: ${AUDIO_MODEL}
     # 禁用自动重试机制，让异常立即返回
     retry:
       max-attempts: 1  # 不重试，失败立即返回
