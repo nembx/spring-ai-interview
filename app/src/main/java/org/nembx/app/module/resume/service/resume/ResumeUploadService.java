@@ -78,7 +78,7 @@ public class ResumeUploadService {
         resumeManageService.updateResumeStorge(resumeId, fileKey, fileUrl);
         log.debug("简历上传成功, 文件名为: {}, 文件路径为: {}", originalFilename, fileUrl);
 
-
+        // 发布事件
         eventPublisher.publishEvent(new ResumeListenerDTO(resumeId, content));
         log.debug("简历事件发布成功, 文件名为: {}", originalFilename);
         return new TaskSubmitResponse(resumeId, TaskResourceType.RESUME.getValue(), TaskStatus.PENDING);

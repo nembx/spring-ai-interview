@@ -10,7 +10,7 @@ import org.nembx.app.module.knowledge.entity.dto.RagMessageDTO;
 import org.nembx.app.module.knowledge.entity.pojo.Knowledge;
 import org.nembx.app.module.knowledge.entity.pojo.RagMessage;
 import org.nembx.app.module.knowledge.entity.pojo.RagSession;
-import org.nembx.app.module.knowledge.entity.req.CreateSessionRequest;
+import org.nembx.app.module.knowledge.entity.req.CreateRagSessionRequest;
 import org.nembx.app.module.knowledge.entity.res.RagSessionDetailResponse;
 import org.nembx.app.module.knowledge.entity.res.RagSessionResponse;
 import org.nembx.app.module.knowledge.repository.KnowledgeRepository;
@@ -38,7 +38,7 @@ public class RagManageService {
     private final KnowledgeManageService knowledgeManageService;
 
     @Transactional(rollbackFor = Exception.class)
-    public RagSessionResponse createSession(CreateSessionRequest request) {
+    public RagSessionResponse createSession(CreateRagSessionRequest request) {
         List<Long> knowledgeIds = request.knowledgeIds();
         if (CollectionUtil.isEmpty(knowledgeIds)) {
             log.warn("创建rag会话失败, 知识ID为空");
@@ -69,13 +69,17 @@ public class RagManageService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "rag会话不存在"));
         List<RagMessage> messages = ragMessageRepository.findAllBySessionIdOrderByCreatedAtAsc(sessionId);
         List<RagMessageDTO> listDTO = messages.stream().map(
-                ragMessage -> new RagMessageDTO(ragMessage.getId(),
+                ragMessage -> new RagMessageDTO(
+                        ragMessage.getId(),
                         ragMessage.getType(),
                         ragMessage.getContent())
         ).toList();
         log.info("获取rag会话详情成功, 会话ID: {}, 会话标题: {}, 知识库数量: {}, 会话创建时间: {}, 会话更新时间: {}",
-                ragSession.getId(), ragSession.getTitle(), ragSession.getKnowledges().size(), ragSession.getCreatedAt(), ragSession.getUpdatedAt());
-        return new RagSessionDetailResponse(ragSession.getId(),
+                ragSession.getId(), ragSession.getTitle(), ragSession.getKnowledges().size(),
+                ragSession.getCreatedAt(), ragSession.getUpdatedAt());
+
+        return new RagSessionDetailResponse(
+                ragSession.getId(),
                 ragSession.getTitle(),
                 knowledgeManageService.toListDTO(ragSession.getKnowledges()),
                 listDTO,
