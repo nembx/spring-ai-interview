@@ -1,4 +1,4 @@
-package org.nembx.app.module.knowledge.task;
+package org.nembx.app.module.knowledge.scheduler;
 
 import cn.hutool.core.collection.CollectionUtil;
 import lombok.RequiredArgsConstructor;
