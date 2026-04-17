@@ -5,10 +5,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.nembx.app.common.enums.SessionStatus;
 import org.nembx.app.common.result.Result;
-import org.nembx.app.module.knowledge.entity.req.CreateSessionRequest;
+import org.nembx.app.module.knowledge.entity.req.CreateRagSessionRequest;
 import org.nembx.app.module.knowledge.entity.req.RagSessionRequest;
 import org.nembx.app.module.knowledge.entity.res.RagSessionDetailResponse;
 import org.nembx.app.module.knowledge.entity.res.RagSessionResponse;
@@ -27,7 +26,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/rag")
-@Slf4j
 @Tag(name = "rag会话管理", description = "rag会话管理接口")
 public class RagController {
     private final RagChatService ragChatService;
@@ -36,7 +34,7 @@ public class RagController {
 
     @Operation(summary = "创建rag会话")
     @PostMapping("/create")
-    public Result<RagSessionResponse> createSession(@Valid @RequestBody CreateSessionRequest request) {
+    public Result<RagSessionResponse> createRagSession(@Valid @RequestBody CreateRagSessionRequest request) {
         return Result.success(ragManageService.createSession(request));
     }
 
@@ -48,7 +46,7 @@ public class RagController {
 
     @Operation(summary = "根据Id删除rag会话")
     @DeleteMapping("/delete/{sessionId}")
-    public Result<Void> deleteSession(@PathVariable Long sessionId) {
+    public Result<Void> deleteRagSession(@PathVariable Long sessionId) {
         ragManageService.deleteSession(sessionId);
         return Result.success();
     }

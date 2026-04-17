@@ -3,6 +3,7 @@ package org.nembx.app.module.knowledge.service.rag;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.nembx.app.common.entity.dto.PreparedChatContext;
 import org.nembx.app.common.enums.MessageType;
 import org.nembx.app.common.enums.SessionStatus;
 import org.nembx.app.common.exception.BusinessException;
@@ -27,9 +28,6 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class RagChatService {
-    private record PreparedChatContext(Long userMessageId, Long assistantMessageId) {
-    }
-
     private final RagSessionRepository ragSessionRepository;
 
     private final RagMessageRepository ragMessageRepository;
@@ -58,6 +56,13 @@ public class RagChatService {
                 .doOnComplete(() -> {
                     transactionTemplate.executeWithoutResult(status -> completeChat(preparedChatContext.assistantMessageId(), content.toString()));
                     log.info("[流式输出完成], sessionId为：{}, messageID为：{}", sessionId, preparedChatContext.assistantMessageId());
+                })
+                .doOnCancel(() -> {
+                    String partial = content.toString();
+                    String cancelContent = partial.isEmpty() ? "【中断】客户端断开连接" : partial;
+                    transactionTemplate.executeWithoutResult(status -> completeChat(preparedChatContext.assistantMessageId(), cancelContent));
+                    log.warn("[流式输出中断] sessionId: {}, messageId: {}, 已接收{}字符",
+                            sessionId, preparedChatContext.assistantMessageId(), partial.length());
                 })
                 .doOnError(throwable -> {
                     String errorContent = !content.isEmpty()
