@@ -83,7 +83,7 @@ public class InterviewChatService {
      * 语音对话 — 语音进，文本出
      * 流程：Audio → STT → AI → Text（前端用 Web Speech API 朗读）
      */
-    public String voiceChat(Long sessionId, Resource audioFile) {
+    public Flux<byte[]> voiceChat(Long sessionId, Resource audioFile) {
         // 语音转文本
         String question = audioService.speechToText(audioFile);
         log.info("[STT完成] sessionId: {}, 识别文本: {}", sessionId, question);
@@ -101,7 +101,7 @@ public class InterviewChatService {
         transactionTemplate.executeWithoutResult(status -> completeChat(ctx.assistantMessageId(), aiReply));
         log.info("[面试语音回复] sessionId: {}, 回复: {}", sessionId, aiReply);
 
-        return aiReply;
+        return audioService.textToSpeech(aiReply);
     }
 
     private PreparedChatContext prepareChat(Long sessionId, String question) {

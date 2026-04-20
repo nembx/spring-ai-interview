@@ -58,6 +58,8 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-starter-model-openai:${springAiVersion}")
     // Spring AI 2.0 - POSTGRESQL Vector Store (pgvector)
     implementation("org.springframework.ai:spring-ai-starter-vector-store-pgvector:${springAiVersion}")
+
+    implementation("io.github.whitemagic2014:tts-edge-java:1.3.3")
 }
 
 tasks.withType<Test> {
