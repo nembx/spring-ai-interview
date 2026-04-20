@@ -38,8 +38,17 @@ public class ResumeExportService {
         log.debug("开始导出简历分析结果, 简历ID: {}, 响应: {}", resumeId, resumeAnalysisResponse);
         return new ResumeExportResponse(
                 pdfExportService.exportResumeAnalysis(resume, resumeAnalysisResponse),
-                resume.getFileName()
+                toPdfFileName(resume.getFileName())
         );
+    }
+
+    private String toPdfFileName(String originalFileName) {
+        if (originalFileName == null || originalFileName.isBlank()) {
+            return "resume-analysis.pdf";
+        }
+        int dot = originalFileName.lastIndexOf('.');
+        String base = dot > 0 ? originalFileName.substring(0, dot) : originalFileName;
+        return base + "-分析报告.pdf";
     }
 
     private ResumeAnalysisResponse toResumeAnalysisResponse(ResumeDetailResponse resumeDetailResponse) {

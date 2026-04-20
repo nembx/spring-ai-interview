@@ -56,14 +56,12 @@ public class PdfExportService {
             document.add(title);
 
             // 基本信息
-            document.add(new Paragraph("\n"));
             document.add(createSectionTitle("基本信息"));
             document.add(new Paragraph("文件名: " + resume.getFileName()));
             document.add(new Paragraph("上传时间: " +
                     (resume.getUploadTime() != null ? DATE_FORMAT.format(resume.getUploadTime()) : "未知")));
 
             // 总分
-            document.add(new Paragraph("\n"));
             document.add(createSectionTitle("综合评分"));
             Paragraph scoreP = new Paragraph("总分: " + analysis.overallScore() + " / 100")
                     .setFontSize(18)
@@ -73,7 +71,6 @@ public class PdfExportService {
 
             // 各维度评分
             if (analysis.scoreDetail() != null) {
-                document.add(new Paragraph("\n"));
                 document.add(createSectionTitle("各维度评分"));
 
                 Table scoreTable = new Table(UnitValue.createPercentArray(new float[]{2, 1}))
@@ -88,14 +85,12 @@ public class PdfExportService {
 
             // 简历摘要
             if (analysis.summary() != null) {
-                document.add(new Paragraph("\n"));
                 document.add(createSectionTitle("简历摘要"));
                 document.add(new Paragraph(sanitizeText(analysis.summary())));
             }
 
             // 优势亮点
             if (analysis.strengths() != null && !analysis.strengths().isEmpty()) {
-                document.add(new Paragraph("\n"));
                 document.add(createSectionTitle("优势亮点"));
                 for (String strength : analysis.strengths()) {
                     document.add(new Paragraph("• " + sanitizeText(strength)));
@@ -104,14 +99,13 @@ public class PdfExportService {
 
             // 改进建议
             if (analysis.suggestions() != null && !analysis.suggestions().isEmpty()) {
-                document.add(new Paragraph("\n"));
                 document.add(createSectionTitle("改进建议"));
                 for (ResumeAnalysisResponse.Suggestion suggestion : analysis.suggestions()) {
                     document.add(new Paragraph("【" + suggestion.priority() + "】" + sanitizeText(suggestion.category()))
-                            .setBold());
+                            .setBold()
+                            .setMarginTop(8));
                     document.add(new Paragraph("问题: " + sanitizeText(suggestion.issue())));
                     document.add(new Paragraph("建议: " + sanitizeText(suggestion.recommendation())));
-                    document.add(new Paragraph("\n"));
                 }
             }
             document.close();
@@ -157,7 +151,8 @@ public class PdfExportService {
                 .setFontSize(14)
                 .setBold()
                 .setFontColor(SECTION_COLOR)
-                .setMarginTop(10);
+                .setMarginTop(16)
+                .setMarginBottom(6);
     }
 
     private void addScoreRow(Table table, String dimension, int score, int maxScore) {

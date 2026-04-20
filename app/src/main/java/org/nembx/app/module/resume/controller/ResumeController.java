@@ -69,7 +69,7 @@ public class ResumeController {
         return Result.success();
     }
 
-    @Operation(summary = "导出简历")
+    @Operation(summary = "导出简历分析报告")
     @GetMapping("/export/{resumeId}")
     public ResponseEntity<byte[]> exportResume(@PathVariable Long resumeId) {
         try {
