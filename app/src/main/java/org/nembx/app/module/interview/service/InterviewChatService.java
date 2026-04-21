@@ -83,7 +83,7 @@ public class InterviewChatService {
      * 语音对话 — 语音进，文本出
      * 流程：Audio → STT → AI → Text（前端用 Web Speech API 朗读）
      */
-    public Flux<byte[]> voiceChat(Long sessionId, Resource audioFile) {
+    public byte[] voiceChat(Long sessionId, Resource audioFile) {
         // 语音转文本
         String question = audioService.speechToText(audioFile);
         log.info("[STT完成] sessionId: {}, 识别文本: {}", sessionId, question);

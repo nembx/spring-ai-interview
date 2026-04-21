@@ -11,7 +11,6 @@ import org.nembx.app.common.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -96,7 +95,7 @@ public class AudioService {
         }
     }
 
-    public Flux<byte[]> textToSpeech(String aiReply) {
+    public byte[] textToSpeech(String aiReply) {
         if (aiReply == null || aiReply.isBlank()) {
             throw new BusinessException(ErrorCode.AI_CALL_ERROR, "TTS输入文本为空");
         }
@@ -127,7 +126,7 @@ public class AudioService {
                 }
                 byte[] bytes = Files.readAllBytes(mp3);
                 log.info("[TTS完成] 耗时: {}ms, 字节数: {}", System.currentTimeMillis() - start, bytes.length);
-                return Flux.just(bytes);
+                return bytes;
             } finally {
                 deleteRecursive(tmpDir);
             }
