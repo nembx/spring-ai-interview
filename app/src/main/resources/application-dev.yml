@@ -21,21 +21,13 @@ spring:
         options:
           model: ${AI_MODEL}
           temperature: 0.7
-      # Embedding模型配置
+      # Embedding模型配置（独立 provider，跟 chat 分开）
       embedding:
+        base-url: ${EMBEDDING_URL}
+        api-key: ${EMBEDDING_KEY}
         options:
           model: ${EMBEDDING_MODEL}
-      # audio模型配置
-      audio:
-        speech:
-          options:
-            model: ${AUDIO_MODEL}
-            voice: alloy
-            speed: 1.0
-            response-format: mp3
-        transcription:
-          options:
-            model: ${AUDIO_MODEL}
+          dimensions: 1024   # 裁剪输出维度，匹配 pgvector 的 vector(1024) 列
     # 禁用自动重试机制，让异常立即返回
     retry:
       max-attempts: 1  # 不重试，失败立即返回
@@ -58,6 +50,10 @@ app:
     secret-key: ${APP_STORAGE_SECRET_KEY}
     bucket: ${APP_STORAGE_BUCKET}
     region: ${APP_STORAGE_REGION}
+  stt:
+    base-url: ${AUDIO_URL}
+    api-key: ${AUDIO_KEY}
+    model: ${STT_MODEL}
 springdoc:
   api-docs:
     path: /v3/api-docs        # OpenAPI JSON 数据接口的路径（默认值）
