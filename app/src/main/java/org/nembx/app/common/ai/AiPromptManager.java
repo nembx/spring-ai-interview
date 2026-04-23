@@ -25,11 +25,8 @@ public class AiPromptManager {
     private final ResourceLoader resourceLoader;
     private final ConcurrentHashMap<String, PromptTemplate> cache = new ConcurrentHashMap<>();
 
-    /**
-     * 获取模板（带缓存）
-     */
     public PromptTemplate getTemplate(String name) {
-        return cache.computeIfAbsent(name, this::loadTemplate);
+        return cache.computeIfAbsent(PROMPT_PREFIX + name + PROMPT_SUFFIX, this::loadTemplate);
     }
 
     /**
@@ -46,8 +43,7 @@ public class AiPromptManager {
         return getTemplate(name).render(variables);
     }
 
-    private PromptTemplate loadTemplate(String name) {
-        String path = PROMPT_PREFIX + name + PROMPT_SUFFIX;
+    private PromptTemplate loadTemplate(String path) {
         try {
             String content = resourceLoader.getResource(path)
                     .getContentAsString(StandardCharsets.UTF_8);
