@@ -45,8 +45,8 @@ public class ResumeAiService {
         resumeManageService.updateResumeStatus(resumeId, TaskStatus.PROCESSING);
 
         try {
-            String systemPrompt = aiPromptManager.render("resume_system_prompt");
-            String userPrompt = aiPromptManager.render("resume_user_prompt", Map.of("resumeText", resumeText));
+            String systemPrompt = aiPromptManager.render("resume/system_prompt");
+            String userPrompt = aiPromptManager.render("resume/user_prompt", Map.of("resumeText", resumeText));
 
             ResumeAnalysisResponseDTO dto = aiClient.call(systemPrompt, userPrompt, outputConverter);
             if (dto == null) {

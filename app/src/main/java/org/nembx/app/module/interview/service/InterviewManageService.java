@@ -7,6 +7,7 @@ import org.nembx.app.common.enums.SessionStatus;
 import org.nembx.app.common.exception.BusinessException;
 import org.nembx.app.common.exception.ErrorCode;
 import org.nembx.app.module.interview.entity.dto.InterviewMessageDTO;
+import org.nembx.app.module.interview.entity.dto.SkillSelectionResult;
 import org.nembx.app.module.interview.entity.pojo.InterviewMessage;
 import org.nembx.app.module.interview.entity.pojo.InterviewSession;
 import org.nembx.app.module.interview.entity.req.CreateInterviewSessionRequest;
@@ -16,6 +17,8 @@ import org.nembx.app.module.interview.repository.InterviewMessageRepository;
 import org.nembx.app.module.interview.repository.InterviewSessionRepository;
 import org.nembx.app.module.knowledge.entity.pojo.Knowledge;
 import org.nembx.app.module.knowledge.repository.KnowledgeRepository;
+import org.nembx.app.module.resume.entity.pojo.Resume;
+import org.nembx.app.module.resume.service.resume.ResumeManageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +37,10 @@ public class InterviewManageService {
 
     private final KnowledgeRepository knowledgeRepository;
 
+    private final ResumeManageService resumeManageService;
+
+    private final InterviewSkillRouter interviewSkillRouter;
+
     @Transactional(rollbackFor = Exception.class)
     public InterviewSessionResponse createInterviewSession(CreateInterviewSessionRequest createInterviewSessionRequest) {
         if (createInterviewSessionRequest.resumeId() == null ||
@@ -41,11 +48,18 @@ public class InterviewManageService {
             log.warn("创建interview会话失败, 简历ID为空或职位描述");
             throw new BusinessException(ErrorCode.PARAM_ERROR, "简历ID或职位描述为空");
         }
+
+        Resume resume = resumeManageService.getOneById(createInterviewSessionRequest.resumeId());
+        SkillSelectionResult skillResult = interviewSkillRouter.route(
+                createInterviewSessionRequest.jdContent(), resume.getContent());
+
         InterviewSession interviewSession = new InterviewSession();
         interviewSession.setResumeId(createInterviewSessionRequest.resumeId())
                 .setJdContent(createInterviewSessionRequest.jdContent())
                 .setTitle(createInterviewSessionRequest.title() == null ?
-                        "默认会话" : createInterviewSessionRequest.title());
+                        "默认会话" : createInterviewSessionRequest.title())
+                .setSelectedSkill(skillResult.skill())
+                .setSkillReason(skillResult.reason());
 
         List<Long> knowledgeIds = createInterviewSessionRequest.knowledgeIds();
         if (CollectionUtil.isNotEmpty(knowledgeIds)) {
@@ -61,6 +75,7 @@ public class InterviewManageService {
                 interviewSession.getTitle(),
                 interviewSession.getJdContent(),
                 interviewSession.getKnowledgeIds(),
+                interviewSession.getSelectedSkill(),
                 interviewSession.getStatus(),
                 interviewSession.getCreatedAt()
         );
@@ -73,6 +88,7 @@ public class InterviewManageService {
                         ragSession.getTitle(),
                         ragSession.getJdContent(),
                         ragSession.getKnowledgeIds(),
+                        ragSession.getSelectedSkill(),
                         ragSession.getStatus(),
                         ragSession.getCreatedAt())
         ).toList();

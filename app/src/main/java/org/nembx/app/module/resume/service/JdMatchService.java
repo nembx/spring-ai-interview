@@ -46,8 +46,8 @@ public class JdMatchService {
         Resume resume = resumeManageService.getOneById(resumeId);
         String resumeText = resume.getContent();
 
-        String systemPrompt = aiPromptManager.render("jd_system_prompt");
-        String userPrompt = aiPromptManager.render("jd_user_prompt", Map.of(
+        String systemPrompt = aiPromptManager.render("resume/jd_system_prompt");
+        String userPrompt = aiPromptManager.render("resume/jd_user_prompt", Map.of(
                 "resumeText", resumeText,
                 "jdContent", jdContent
         ));
