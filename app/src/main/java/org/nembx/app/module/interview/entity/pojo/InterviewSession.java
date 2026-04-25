@@ -53,6 +53,13 @@ public class InterviewSession {
     @Schema(description = "最大题数")
     private Integer maxQuestions = 8;
 
+    @Schema(description = "LLM 路由选中的面试 skill key")
+    private String selectedSkill;
+
+    @Column(columnDefinition = "TEXT")
+    @Schema(description = "LLM 选择该 skill 的理由")
+    private String skillReason;
+
     @Schema(description = "关联的知识库")
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

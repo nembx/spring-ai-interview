@@ -13,6 +13,7 @@ public record InterviewSessionResponse(
         String title,
         String jdContent,
         List<Long> knowledgeIds,
+        String selectedSkill,
         SessionStatus status,
         LocalDateTime createdAt
 ) {
