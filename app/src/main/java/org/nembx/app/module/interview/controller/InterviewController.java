@@ -86,6 +86,6 @@ public class InterviewController {
     )
     public byte[] voiceChat(@PathVariable Long sessionId,
                             @RequestPart("audio") MultipartFile audioFile) {
-        return interviewChatService.voiceChat(sessionId, audioFile.getResource()).blockFirst();
+        return interviewChatService.voiceChat(sessionId, audioFile.getResource());
     }
 }

@@ -46,8 +46,8 @@ public class KnowledgeRetrieveService {
             return null;
         }
 
-        String systemPrompt = aiPromptManager.render("knowledge_system_prompt");
-        String userPrompt = aiPromptManager.render("knowledge_user_prompt",
+        String systemPrompt = aiPromptManager.render("knowledge/system_prompt");
+        String userPrompt = aiPromptManager.render("knowledge/user_prompt",
                 Map.of("question", question, "context", context, "history", historyContext));
 
         return new RetrievalContext(systemPrompt, userPrompt);
