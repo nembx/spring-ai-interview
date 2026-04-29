@@ -160,7 +160,7 @@ public class InterviewChatService {
                 .toList();
 
         return interviewRetrieveService.retrieve(
-                session.getJdContent(), question, resume.getContent(),
+                session.getJdContent(), session.getSelectedSkill(), question, resume.getContent(),
                 session.getQuestionCount(), session.getMaxQuestions(), messages,
                 session.getKnowledgeIds());
     }
