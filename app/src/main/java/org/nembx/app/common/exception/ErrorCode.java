@@ -31,7 +31,8 @@ public enum ErrorCode {
     KNOWLEDGE_QUERY_ERROR("知识库查询错误", 10012),
     EXPORT_PDF_FAILED("导出PDF失败", 10013),
     VECTOR_ERROR("向量库错误", 10014),
-    AI_CALL_ERROR("AI调用失败", 10015);
+    AI_CALL_ERROR("AI调用失败", 10015),
+    OVER_RATE_LIMIT("超出限流限制", 10016);
 
     private final String message;
     private final Integer code;
