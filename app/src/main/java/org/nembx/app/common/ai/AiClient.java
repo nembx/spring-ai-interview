@@ -2,13 +2,13 @@ package org.nembx.app.common.ai;
 
 import lombok.extern.slf4j.Slf4j;
 import org.nembx.app.common.exception.BusinessException;
+import org.nembx.app.common.exception.ErrorCode;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.converter.StructuredOutputConverter;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
-import static org.nembx.app.common.exception.ErrorCode.AI_CALL_ERROR;
 
 /**
  * @author Lian
@@ -36,7 +36,7 @@ public class AiClient {
             return result;
         } catch (Exception e) {
             log.error("[AI调用失败] 耗时: {}ms, 错误: {}", System.currentTimeMillis() - start, e.getMessage());
-            throw new BusinessException(AI_CALL_ERROR, "AI调用失败: " + e.getMessage());
+            throw new BusinessException(ErrorCode.AI_CALL_ERROR, "AI调用失败: " + e.getMessage());
         }
     }
 
@@ -53,7 +53,7 @@ public class AiClient {
             return result;
         } catch (Exception e) {
             log.error("[AI结构化调用失败] 耗时: {}ms, 错误: {}", System.currentTimeMillis() - start, e.getMessage());
-            throw new BusinessException(AI_CALL_ERROR, "AI调用失败: " + e.getMessage());
+            throw new BusinessException(ErrorCode.AI_CALL_ERROR, "AI调用失败: " + e.getMessage());
         }
     }
 
