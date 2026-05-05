@@ -26,9 +26,8 @@ public class TaskQueryService {
 
     @PostConstruct
     public void init() {
-        for (TaskProvider provider : providers) {
+        for (TaskProvider provider : providers)
             taskMap.put(provider.supportType(), provider);
-        }
     }
 
     public TaskStatusResponse getTaskStatus(String resourceType, Long resourceId) {
