@@ -114,7 +114,6 @@ public class KnowledgeVectorService {
             }
             List<Document> resDocuments = vectorStore.similaritySearch(builder.build());
 
-
             if (CollectionUtil.isEmpty(resDocuments)) {
                 log.warn("相似度搜索结果为空, 查询: {}, 知识ID: {}", query, knowledgeIds);
                 return List.of();
@@ -127,7 +126,7 @@ public class KnowledgeVectorService {
         }
     }
 
-    // 删除指定数据库所有的向量
+    // 删除指定知识库所有的向量
     @Transactional(rollbackFor = Exception.class)
     public void deleteKnowledge(Long knowledgeId) {
         try {
