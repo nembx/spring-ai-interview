@@ -10,7 +10,7 @@
 | --- | --- |
 | 语言与构建 | Java 21（虚拟线程）、Gradle Kotlin DSL |
 | Web / 框架 | Spring Boot 4.0.1、Spring MVC、Spring Data JPA |
-| AI | Spring AI 2.0.0-M1（OpenAI 兼容模式）、pgvector Vector Store |
+| AI | Spring AI 2.0.0（OpenAI 兼容模式）、pgvector Vector Store |
 | 数据存储 | PostgreSQL + pgvector、Redis（缓存 / 限流） |
 | 对象存储 | AWS SDK v2 S3（适配 RustFS / MinIO 等 S3 兼容服务） |
 | 文档处理 | Apache Tika（解析）、iText（PDF 导出） |

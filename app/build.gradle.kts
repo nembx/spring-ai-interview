@@ -1,10 +1,10 @@
-plugins {
+iyplugins {
     java
     id("org.springframework.boot") version "4.0.1"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
-val springAiVersion = "2.0.0-M1"
+val springAiVersion = "2.0.0"
 
 group = "org.nembx"
 version = "0.0.1-SNAPSHOT"
@@ -17,8 +17,6 @@ java {
 
 repositories {
     mavenCentral()
-    maven { url = uri("https://repo.spring.io/milestone") }
-    maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
 dependencyManagement {

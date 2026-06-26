@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 
 /**
  * 直接走 HTTP 调用 SiliconFlow（OpenAI 兼容）transcription 接口。
- * 绕开 Spring AI 2.0.0-M1 在 Spring 7 下的 multipart 编码兼容问题。
+ * 绕开 Spring AI 音频转写 multipart 编码兼容问题。
  * 手工构造 multipart body，字节级对齐 curl -F 的 wire format：
  * - 文本字段 (model) 不带 Content-Type
  * - 文件字段根据扩展名带正确的 audio/* Content-Type
