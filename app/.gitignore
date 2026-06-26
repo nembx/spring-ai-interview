@@ -40,3 +40,5 @@ out/
 
 .env
 **/src/test/
+
+._DS_Store
